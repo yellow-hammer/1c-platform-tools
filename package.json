@@ -1,0 +1,57 @@
+{
+  "name": "1c-platform-tools",
+  "displayName": "1C Platform Tools",
+  "description": "Расширение для Visual Studio Code с инструментами разработки для экосистемы 1С. Предоставляет удобный интерфейс для работы с проектами 1С, включая разбор обработок, отчетов и конфигураций.",
+  "version": "0.0.1",
+  "publisher": "yellow-hammer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yellow-hammer/1c-platform-tools"
+  },
+  "author": {
+    "name": "Ivan Karlo",
+    "email": "i.karlo@outlook.com",
+    "url": "https://johnnyshut.github.io/"
+  },
+  "contributors": [
+    "Ivan Karlo (i.karlo@outlook.com)"
+  ],
+  "galleryBanner": {
+    "color": "yellow",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.106.1"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "1c-platform-tools.helloWorld",
+        "title": "Hello World"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.106.1",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.48.1",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
