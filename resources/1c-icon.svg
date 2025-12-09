@@ -1,11 +1,9 @@
 <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
-  <!-- Фон для темной темы -->
-  <rect width="128" height="128" rx="20" fill="#252526"/>
+  <!-- Фон прозрачный -->
   
-  <!-- Цифра 1 в стиле 1С (официальный оранжевый цвет) -->
-  <text x="26" y="92" font-family="Arial, sans-serif" font-size="82" font-weight="900" fill="#FF6B00" letter-spacing="-3">1</text>
+  <!-- Цифра 1 в сером цвете (вместо оранжевого #FF6B00) -->
+  <text x="26" y="92" font-family="Arial, sans-serif" font-size="82" font-weight="900" fill="#808080" letter-spacing="-3">1</text>
   
-  <!-- Буква С в стиле 1С (официальный синий цвет) -->
-  <text x="68" y="92" font-family="Arial, sans-serif" font-size="82" font-weight="900" fill="#0066CC" letter-spacing="-3">С</text>
+  <!-- Буква С в сером цвете (вместо синего #0066CC) -->
+  <text x="68" y="92" font-family="Arial, sans-serif" font-size="82" font-weight="900" fill="#808080" letter-spacing="-3">С</text>
 </svg>
-

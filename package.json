@@ -29,12 +29,78 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "1c-platform-tools",
+          "title": "1C Platform Tools",
+          "icon": "resources/1c-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "1c-platform-tools": [
+        {
+          "id": "1c-platform-tools",
+          "name": "1C Platform",
+          "when": "true"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "1c-platform-tools.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "1c-platform-tools.task.parseExternalProcessors",
+        "title": "Разбор внешних обработок",
+        "icon": "$(play)"
+      },
+      {
+        "command": "1c-platform-tools.task.parseReports",
+        "title": "Разбор отчетов",
+        "icon": "$(play)"
+      },
+      {
+        "command": "1c-platform-tools.task.parseConfiguration",
+        "title": "Разбор конфигурации",
+        "icon": "$(play)"
+      },
+      {
+        "command": "1c-platform-tools.task.parseExtensions",
+        "title": "Разбор расширений",
+        "icon": "$(play)"
+      },
+      {
+        "command": "1c-platform-tools.file.open",
+        "title": "Открыть файл"
+      },
+      {
+        "command": "1c-platform-tools.refresh",
+        "title": "Обновить",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "1c-platform-tools.settings",
+        "title": "Настройки",
+        "icon": "$(gear)"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "1c-platform-tools.refresh",
+          "when": "view == 1c-platform-tools",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.settings",
+          "when": "view == 1c-platform-tools",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
