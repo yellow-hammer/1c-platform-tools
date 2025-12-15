@@ -41,9 +41,30 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
 
-      - name: Update package.json version
+      - name: Switch to main branch and update version
         run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          # Определяем основную ветку (main или master)
+          if git show-ref --verify --quiet refs/remotes/origin/main; then
+            BRANCH="main"
+          elif git show-ref --verify --quiet refs/remotes/origin/master; then
+            BRANCH="master"
+          else
+            BRANCH=$(git ls-remote --heads origin | grep -E '(main|master)' | head -1 | sed 's/.*refs\/heads\///' || echo "main")
+          fi
+          echo "Switching to branch: $BRANCH"
+          git checkout $BRANCH
+          # Обновляем версию в package.json
           npm version ${{ steps.tag_version.outputs.version }} --no-git-tag-version
+          # Коммитим изменения версии, если они есть (формат не попадает в changelog)
+          git add package.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit (version already matches)"
+          else
+            git commit -m "chore(release): prepare for v${{ steps.tag_version.outputs.version }}"
+            git push origin $BRANCH
+          fi
 
       - name: Generate changelog
         id: changelog
@@ -62,6 +83,32 @@ jobs:
             echo "$CHANGELOG"
             echo EOF
           } >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Commit changelog
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          # Определяем основную ветку (main или master)
+          if git show-ref --verify --quiet refs/remotes/origin/main; then
+            BRANCH="main"
+          elif git show-ref --verify --quiet refs/remotes/origin/master; then
+            BRANCH="master"
+          else
+            BRANCH=$(git ls-remote --heads origin | grep -E '(main|master)' | head -1 | sed 's/.*refs\/heads\///' || echo "main")
+          fi
+          # Коммитим changelog.md, если он был сгенерирован (формат не попадает в changelog)
+          if [ -f CHANGELOG.md ]; then
+            git add CHANGELOG.md
+            if git diff --staged --quiet; then
+              echo "No changes to commit in CHANGELOG.md"
+            else
+              git commit -m "chore(deps): update changelog"
+              git push origin $BRANCH
+            fi
+          else
+            echo "CHANGELOG.md not found, skipping commit"
+          fi
         continue-on-error: true
 
       - name: Package extension
