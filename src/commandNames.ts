@@ -1,0 +1,379 @@
+/**
+ * Утилиты для получения названий и заголовков команд
+ * Используется для единообразного отображения команд в интерфейсе
+ */
+
+export interface CommandNameAndTitle {
+	name: string;
+	title: string;
+}
+
+/**
+ * Получить название и заголовок для команды создания пустой информационной базы
+ */
+export function getCreateEmptyInfobaseCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Создать пустую',
+		title: 'Создать пустую'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды загрузки конфигурации из *.cf
+ */
+export function getLoadConfigurationFromCfCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Загрузка конфигурации из CF',
+		title: 'Загрузить конфигурацию из *.cf'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды загрузки расширений
+ */
+export function getLoadExtensionsCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Загрузка расширений',
+		title: 'Загрузка расширений'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды обновления базы данных
+ */
+export function getUpdateDatabaseCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Запустить обновление',
+		title: 'Запустить обновление'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды блокировки внешних ресурсов
+ */
+export function getBlockExternalResourcesCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Запретить работу с внешними ресурсами',
+		title: 'Запретить работу с внешними ресурсами'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды инициализации данных
+ */
+export function getInitializeCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Инициализировать данные',
+		title: 'Инициализировать данные'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды выгрузки информационной базы в dt
+ */
+export function getDumpInfobaseToDtCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Выгрузить в dt',
+		title: 'Выгрузить в dt'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды загрузки информационной базы из dt
+ */
+export function getLoadInfobaseFromDtCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Загрузить из dt',
+		title: 'Загрузить из dt'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды установки зависимостей
+ */
+export function getInstallDependenciesCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Установить зависимости',
+		title: 'Установить зависимости'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды удаления зависимостей
+ */
+export function getRemoveDependenciesCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Удалить зависимости',
+		title: 'Удалить зависимости'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды инициализации packagedef
+ */
+export function getInitializePackagedefCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Инициализировать packagedef',
+		title: 'Инициализировать packagedef'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды сборки конфигурации
+ */
+export function getBuildConfigurationCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Собрать конфигурацию',
+		title: 'Собрать конфигурацию'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды сборки расширений
+ */
+export function getBuildExtensionsCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Собрать расширения',
+		title: 'Собрать расширения'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды сборки внешней обработки
+ */
+export function getBuildExternalProcessorCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Собрать внешнюю обработку',
+		title: 'Собрать внешнюю обработку'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды сборки внешнего отчета
+ */
+export function getBuildExternalReportCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Собрать внешний отчет',
+		title: 'Собрать внешний отчет'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды разбора конфигурации
+ */
+export function getDecompileConfigurationCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Разобрать конфигурацию',
+		title: 'Разобрать конфигурацию'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды разбора внешней обработки
+ */
+export function getDecompileExternalProcessorCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Разобрать внешнюю обработку',
+		title: 'Разобрать внешнюю обработку'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды разбора внешнего отчета
+ */
+export function getDecompileExternalReportCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Разобрать внешний отчет',
+		title: 'Разобрать внешний отчет'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды очистки кэша
+ */
+export function getClearCacheCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Очистить кэш',
+		title: 'Очистить кэш'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды разбора расширения
+ */
+export function getDecompileExtensionCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Разобрать расширение',
+		title: 'Разобрать расширение'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды запуска Предприятия
+ */
+export function getRunEnterpriseCommandName(): CommandNameAndTitle {
+	return {
+		name: '1С:Предприятие',
+		title: 'Запустить Предприятие'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды запуска Конфигуратора
+ */
+export function getRunDesignerCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Конфигуратор',
+		title: 'Запустить Конфигуратор'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды XUnit тестов
+ */
+export function getXUnitTestsCommandName(): CommandNameAndTitle {
+	return {
+		name: 'XUnit тесты',
+		title: 'XUnit тесты'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды синтаксического контроля
+ */
+export function getSyntaxCheckCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Синтаксический контроль',
+		title: 'Синтаксический контроль'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды Vanessa тестов
+ */
+export function getVanessaTestsCommandName(mode: 'normal' | 'currentFile' = 'normal'): CommandNameAndTitle {
+	if (mode === 'currentFile') {
+		return {
+			name: 'Vanessa тесты (текущий файл)',
+			title: 'Запустить текущий feature'
+		};
+	}
+	return {
+		name: 'Vanessa тесты',
+		title: 'Vanessa тесты'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды Allure отчета
+ */
+export function getAllureReportCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Allure отчет',
+		title: 'Allure отчет'
+	};
+}
+
+// ============================================================================
+// Команды для работы с конфигурацией
+// ============================================================================
+
+/**
+ * Получить название и заголовок для команды загрузки конфигурации из src/cf
+ */
+export function getLoadConfigurationFromSrcCommandName(mode: 'init' | 'update' = 'update'): CommandNameAndTitle {
+	if (mode === 'init') {
+		return {
+			name: 'Инициализация конфигурации',
+			title: 'Загрузить конфигурацию из src/cf'
+		};
+	}
+	return {
+		name: 'Обновление конфигурации',
+		title: 'Загрузить конфигурацию из src/cf'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды выгрузки конфигурации в src/cf
+ */
+export function getDumpConfigurationToSrcCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Выгрузить конфигурацию в src/cf',
+		title: 'Выгрузить конфигурацию в src/cf'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды выгрузки конфигурации в 1Cv8.cf
+ */
+export function getDumpConfigurationToCfCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Выгрузить конфигурацию в 1Cv8.cf',
+		title: 'Выгрузить конфигурацию в 1Cv8.cf'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды выгрузки файла поставки в 1Cv8dist.cf
+ */
+export function getDumpConfigurationToDistCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Выгрузить файл поставки в 1Cv8dist.cf',
+		title: 'Выгрузить файл поставки в 1Cv8dist.cf'
+	};
+}
+
+// ============================================================================
+// Команды для работы с расширениями
+// ============================================================================
+
+/**
+ * Получить название и заголовок для команды загрузки расширений из src/cfe
+ */
+export function getLoadExtensionFromSrcCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Загрузить расширения из src/cfe',
+		title: 'Загрузить расширения из src/cfe'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды загрузки расширения из *.cfe
+ */
+export function getLoadExtensionFromCfeCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Загрузить расширение из *.cfe',
+		title: 'Загрузить расширение из *.cfe'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды выгрузки расширений в src/cfe
+ */
+export function getDumpExtensionToSrcCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Выгрузить расширения в src/cfe',
+		title: 'Выгрузить расширения в src/cfe'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды выгрузки расширения в *.cfe
+ */
+export function getDumpExtensionToCfeCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Выгрузить расширение в *.cfe',
+		title: 'Выгрузить расширение в *.cfe'
+	};
+}
+
+/**
+ * Получить название и заголовок для команды сборки расширения
+ */
+export function getBuildExtensionCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Собрать расширение',
+		title: 'Собрать расширение'
+	};
+}
