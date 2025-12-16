@@ -342,6 +342,11 @@
           "default": "vrunner",
           "description": "Путь к vrunner (vanessa-runner)"
         },
+        "1c-platform-tools.useIbcmd": {
+          "type": "boolean",
+          "default": false,
+          "description": "Использовать утилиту ibcmd вместо конфигуратора для выполнения операций с информационной базой. ibcmd - утилита командной строки, которая ускоряет выполнение операций (загрузка, выгрузка, сборка, разбор конфигурации и расширений) без запуска графического интерфейса Конфигуратора."
+        },
         "1c-platform-tools.vrunner.initSettingsPath": {
           "type": "string",
           "default": "./tools/vrunner.init.json",
@@ -376,11 +381,6 @@
           "type": "string",
           "default": "allure",
           "description": "Путь к allure"
-        },
-        "1c-platform-tools.ideTasks.autoCreate": {
-          "type": "boolean",
-          "default": true,
-          "description": "Автоматически создавать задачи IDE после выполнения команд"
         }
       }
     }
