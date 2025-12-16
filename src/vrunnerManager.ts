@@ -213,6 +213,24 @@ export class VRunnerManager {
 	}
 
 	/**
+	 * Проверяет, включена ли настройка использования ibcmd
+	 * 
+	 * Настройка берется из VS Code (1c-platform-tools.useIbcmd).
+	 * По умолчанию: false
+	 * 
+	 * ibcmd - это утилита командной строки платформы 1С:Предприятие,
+	 * которая позволяет выполнять операции с конфигурацией без запуска
+	 * графического интерфейса Конфигуратора. Использование ibcmd ускоряет
+	 * выполнение операций и удобно для автоматизации процессов разработки.
+	 * 
+	 * @returns true, если нужно использовать ibcmd, иначе false
+	 */
+	public getUseIbcmd(): boolean {
+		const config = vscode.workspace.getConfiguration('1c-platform-tools');
+		return config.get<boolean>('useIbcmd', false);
+	}
+
+	/**
 	 * Проверяет, установлен ли vrunner и доступен ли он для выполнения
 	 * 
 	 * Выполняет команду `vrunner version` для проверки доступности.

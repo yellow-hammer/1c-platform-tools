@@ -30,6 +30,9 @@ export class InfobaseCommands extends BaseCommand {
 
 		const ibConnectionParam = await this.vrunner.getIbConnectionParam();
 		const args = ['init-dev', ...ibConnectionParam];
+		if (this.vrunner.getUseIbcmd()) {
+			args.push('--ibcmd');
+		}
 		const commandName = getCreateEmptyInfobaseCommandName();
 
 		this.vrunner.executeVRunnerInTerminal(args, {
@@ -163,6 +166,9 @@ export class InfobaseCommands extends BaseCommand {
 		const ibConnectionParam = await this.vrunner.getIbConnectionParam();
 		const commandName = getDumpInfobaseToDtCommandName();
 		const args = ['dump', dtPath, ...ibConnectionParam];
+		if (this.vrunner.getUseIbcmd()) {
+			args.push('--ibcmd');
+		}
 
 		this.vrunner.executeVRunnerInTerminal(args, {
 			cwd: workspaceRoot,
@@ -204,6 +210,9 @@ export class InfobaseCommands extends BaseCommand {
 		const ibConnectionParam = await this.vrunner.getIbConnectionParam();
 		const commandName = getLoadInfobaseFromDtCommandName();
 		const args = ['restore', relativePath, ...ibConnectionParam];
+		if (this.vrunner.getUseIbcmd()) {
+			args.push('--ibcmd');
+		}
 
 		this.vrunner.executeVRunnerInTerminal(args, {
 			cwd: workspaceRoot,

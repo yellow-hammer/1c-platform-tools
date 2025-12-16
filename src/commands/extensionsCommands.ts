@@ -92,6 +92,9 @@ export class ExtensionsCommands extends BaseCommand {
 		for (const extensionFolder of extensionFolders) {
 			const inputPath = path.join(cfePath, extensionFolder);
 			const args = ['compileext', inputPath, extensionFolder, ...ibConnectionParam];
+			if (this.vrunner.getUseIbcmd()) {
+				args.push('--ibcmd');
+			}
 			commands.push(buildCommand(vrunnerPath, args, shellType));
 		}
 
@@ -171,6 +174,9 @@ export class ExtensionsCommands extends BaseCommand {
 		for (const extensionFolder of extensionFolders) {
 			const outputPath = path.join(cfePath, extensionFolder);
 			const args = ['decompileext', extensionFolder, outputPath, ...ibConnectionParam];
+			if (this.vrunner.getUseIbcmd()) {
+				args.push('--ibcmd');
+			}
 			commands.push(buildCommand(vrunnerPath, args, shellType));
 		}
 
@@ -207,6 +213,9 @@ export class ExtensionsCommands extends BaseCommand {
 			const extensionFileName = `${extensionFolder}.cfe`;
 			const cfepath = path.join(buildPath, 'cfe', extensionFileName);
 			const args = ['unloadext', cfepath, extensionFolder, ...ibConnectionParam];
+			if (this.vrunner.getUseIbcmd()) {
+				args.push('--ibcmd');
+			}
 			commands.push(buildCommand(vrunnerPath, args, shellType));
 		}
 
@@ -244,6 +253,9 @@ export class ExtensionsCommands extends BaseCommand {
 			const srcPath = path.join(cfePath, extensionFolder);
 			const outPath = path.join(buildPath, 'cfe', extensionFileName);
 			const args = ['compileexttocfe', '--src', srcPath, '--out', outPath];
+			if (this.vrunner.getUseIbcmd()) {
+				args.push('--ibcmd');
+			}
 			commands.push(buildCommand(vrunnerPath, args, shellType));
 		}
 
@@ -288,6 +300,9 @@ export class ExtensionsCommands extends BaseCommand {
 			const extensionName = cfeFile.replace(/\.cfe$/i, '');
 			const outputPath = path.join(cfePath, extensionName);
 			const args = ['decompileext', extensionName, outputPath, ...ibConnectionParam];
+			if (this.vrunner.getUseIbcmd()) {
+				args.push('--ibcmd');
+			}
 			commands.push(buildCommand(vrunnerPath, args, shellType));
 		}
 
