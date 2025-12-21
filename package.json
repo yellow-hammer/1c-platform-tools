@@ -19,7 +19,7 @@
   ],
   "icon": "resources/1c-icon.png",
   "galleryBanner": {
-    "color": "blue",
+    "color": "#0000FF",
     "theme": "dark"
   },
   "engines": {
