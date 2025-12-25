@@ -14,6 +14,7 @@
  */
 
 import * as vscode from 'vscode';
+import * as path from 'node:path';
 
 /**
  * Тип оболочки терминала
@@ -470,4 +471,86 @@ function getCommandSeparator(shellType: ShellType): string {
 export function joinCommands(commands: string[], shellType?: ShellType): string {
 	const shell = shellType || detectShellType();
 	return commands.join(getCommandSeparator(shell));
+}
+
+/**
+ * Формирует команду Docker для выполнения vrunner в контейнере
+ * 
+ * Создает команду `docker run` с монтированием workspace и выполнением vrunner внутри контейнера.
+ * Автоматически нормализует пути для указанной оболочки. В контейнере всегда используется bash (Linux),
+ * поэтому аргументы экранируются для bash, а не для оболочки хоста.
+ * 
+ * **Важно:** Предполагается, что Docker-образ имеет `ENTRYPOINT ["vrunner"]`, поэтому команда `vrunner`
+ * не добавляется в аргументы. Если образ не имеет ENTRYPOINT, можно использовать `--entrypoint vrunner`
+ * или указать `vrunner` явно в аргументах.
+ * 
+ * @param dockerImage - Docker-образ для выполнения команд (например, 'yellow-hammer/vrunner:8.3.27.1786')
+ * @param vrunnerArgs - Аргументы команды vrunner (без префикса 'vrunner')
+ * @param workspaceRoot - Корневая директория workspace (будет смонтирована в /workspace)
+ * @param shellType - Тип оболочки терминала хоста (опционально, определяется автоматически)
+ * @returns Строка команды Docker для выполнения в терминале
+ * 
+ * @example
+ * ```typescript
+ * buildDockerCommand(
+ *   'yellow-hammer/vrunner:8.3.27.1786',
+ *   ['init-dev', '--ibconnection', '/F./workspace/build/ib'],
+ *   '/path/to/workspace',
+ *   'bash'
+ * )
+ * // Вернет: 'docker run --rm -v "/path/to/workspace:/workspace" -w /workspace yellow-hammer/vrunner:8.3.27.1786 init-dev --ibconnection /F./workspace/build/ib'
+ * ```
+ */
+export function buildDockerCommand(
+	dockerImage: string,
+	vrunnerArgs: string[],
+	workspaceRoot: string,
+	shellType?: ShellType
+): string {
+	const shell = shellType || detectShellType();
+	const normalizedWorkspace = normalizePathForShell(workspaceRoot, shell);
+	const volumeMount = `-v "${normalizedWorkspace}:/workspace"`;
+	const workDir = `-w /workspace`;
+	const normalizedArgs = vrunnerArgs.map((arg) => normalizeArgForShell(arg, shell));
+	const argsString = escapeCommandArgs(normalizedArgs, 'bash');
+	const dockerCmd = `docker run --rm ${volumeMount} ${workDir} ${dockerImage} ${argsString}`;
+	
+	return dockerCmd;
+}
+
+/**
+ * Нормализует путь к информационной базе для работы в Docker-контейнере
+ * 
+ * Преобразует пути в формат, понятный внутри контейнера:
+ * - Формат 1С `/F./path` преобразуется в `/workspace/path`
+ * - Абсолютные пути workspace преобразуются в `/workspace/relative/path`
+ * - Относительные пути остаются без изменений
+ * 
+ * @param ibPath - Путь к информационной базе (может быть в формате `/F./build/ib` или `./build/ib`)
+ * @param workspaceRoot - Корневая директория workspace
+ * @returns Нормализованный путь для использования в Docker-контейнере
+ * 
+ * @example
+ * ```typescript
+ * normalizeIbPathForDocker('/F./build/ib', '/path/to/workspace')
+ * // Вернет: '/F./workspace/build/ib'
+ * 
+ * normalizeIbPathForDocker('./build/ib', '/path/to/workspace')
+ * // Вернет: './build/ib'
+ * ```
+ */
+export function normalizeIbPathForDocker(ibPath: string, workspaceRoot: string): string {
+	if (ibPath.startsWith('/F.')) {
+		const relativePath = ibPath.substring(3);
+		const cleanPath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+		return `/F./workspace/${cleanPath}`;
+	}
+	
+	if (path.isAbsolute(ibPath) && ibPath.startsWith(workspaceRoot)) {
+		const relativePath = path.relative(workspaceRoot, ibPath);
+		const unixPath = relativePath.replaceAll('\\', '/');
+		return `./${unixPath}`;
+	}
+	
+	return ibPath;
 }

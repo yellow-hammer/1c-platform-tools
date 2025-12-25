@@ -353,7 +353,7 @@
         "1c-platform-tools.useIbcmd": {
           "type": "boolean",
           "default": false,
-          "description": "Использовать утилиту ibcmd вместо конфигуратора для выполнения операций с информационной базой. ibcmd - утилита командной строки, которая ускоряет выполнение операций (загрузка, выгрузка, сборка, разбор конфигурации и расширений) без запуска графического интерфейса Конфигуратора."
+          "description": "Использовать утилиту ibcmd вместо конфигуратора для выполнения операций с информационной базой. ibcmd - утилита командной строки, которая ускоряет выполнение операций (загрузка, выгрузка, сборка, разбор конфигурации и расширений) без запуска графического интерфейса Конфигуратора. Примечание: при использовании Docker (docker.enabled = true) ibcmd используется автоматически, так как в Docker нет GUI."
         },
         "1c-platform-tools.vrunner.initSettingsPath": {
           "type": "string",
@@ -389,6 +389,16 @@
           "type": "string",
           "default": "allure",
           "description": "Путь к allure"
+        },
+        "1c-platform-tools.docker.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Использовать Docker для выполнения команд vrunner. Включает выполнение команд vrunner через Docker-контейнер вместо локального выполнения."
+        },
+        "1c-platform-tools.docker.image": {
+          "type": "string",
+          "default": "",
+          "description": "Docker-образ для выполнения команд vrunner. Образ должен содержать установленную платформу 1С:Предприятие и vanessa-runner. Пример: 'myregistry/onec-image:8.3.25' или 'localhost/onec-image:latest'. Если не указан, будет показана ошибка с инструкцией."
         }
       }
     }
