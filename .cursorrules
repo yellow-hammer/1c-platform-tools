@@ -79,7 +79,7 @@
 - `src/commandNames.ts` - утилиты для получения названий команд
 - `src/commands/baseCommand.ts` - базовый класс для всех команд
 - `src/commands/` - классы команд, разделенные по доменам (наследуются от BaseCommand)
-- `src/utils/commandUtils.ts` - утилиты для работы с командами (escapeCommandArgs, buildCommand, joinCommands)
+- `src/utils/commandUtils.ts` - утилиты для работы с командами (escapeCommandArgs, buildCommand, joinCommands, buildDockerCommand, normalizeIbPathForDocker)
 - `src/constants.ts` - константы для работы с vanessa-runner
 - `src/test/` - тесты
 - `resources/` - иконки (1c-icon.svg, 1c-icon.png)
@@ -104,9 +104,29 @@
 ### Использование ibcmd
 - **ibcmd**: утилита командной строки платформы 1С:Предприятие для ускорения операций с конфигурацией без запуска графического интерфейса Конфигуратора
 - **Требование**: для работы ibcmd необходимо, чтобы платформа 1С:Предприятие была установлена с флагом **"Сервер 1С: Предприятия 8"**
-- **Проверка настройки**: использовать `this.vrunner.getUseIbcmd()` для проверки, включена ли настройка использования ibcmd (настройка `1c-platform-tools.useIbcmd`, по умолчанию `false`)
+- **Проверка настройки**: использовать `this.vrunner.getUseIbcmd()` для проверки, включена ли настройка использования ibcmd
+- **Логика определения**: `getUseIbcmd()` возвращает `true` если:
+  - Настройка `1c-platform-tools.useIbcmd = true` (явное включение)
+  - ИЛИ настройка `1c-platform-tools.docker.enabled = true` (автоматически в Docker, так как нет GUI)
 - **Добавление параметра**: при выполнении команд с информационной базой проверять настройку и добавлять параметр `--ibcmd` в массив аргументов: `if (this.vrunner.getUseIbcmd()) { args.push('--ibcmd'); }`
 - **Команды, поддерживающие ibcmd**: операции с конфигурацией (загрузка, выгрузка, сборка, разбор), операции с расширениями, операции с информационными базами
+
+### Работа с Docker
+- **Поддержка Docker**: расширение поддерживает выполнение команд vrunner через Docker-контейнеры
+- **Настройки**: `1c-platform-tools.docker.enabled` (boolean, default: false) и `1c-platform-tools.docker.image` (string, default: "")
+- **Проверка использования Docker**: использовать `await this.vrunner.shouldUseDocker()` для проверки, нужно ли использовать Docker
+- **Автоматическое использование ibcmd**: при работе в Docker (`docker.enabled = true`) параметр `--ibcmd` используется автоматически через `getUseIbcmd()`
+- **Проверка поддержки ibcmd**: использовать `this.vrunner.supportsIbcmd(args)` для проверки, поддерживает ли команда `--ibcmd`
+- **Ограничение**: в Docker можно выполнять только команды, которые поддерживают `--ibcmd` (операции с ИБ: init-dev, update-dev, dump, restore, dump-dt, load-dt; конфигурацией: load, dump, dumpcf, compile, decompile; расширениями: compileext, decompileext, unloadext, compileexttocfe; внешними файлами: compileepf, decompileepf). Команды запуска (run, designer) и тестирования (xunit, syntax-check, vanessa) не поддерживаются в Docker
+- **Предупреждение**: при попытке выполнить команду без поддержки `--ibcmd` в Docker показывается предупреждение с возможностью отмены
+- **Нормализация путей для Docker**: использовать `this.vrunner.processCommandArgsForDocker()` (публичный метод) для нормализации аргументов команды (преобразует пути в формат `/workspace/...`)
+- **Получение Docker-образа**: использовать `this.vrunner.getDockerImage()` (публичный метод) для получения Docker-образа из настроек
+- **Формирование Docker-команд**: использовать `buildDockerCommand()` из `src/utils/commandUtils.ts` для формирования команды `docker run`
+- **Обработка путей ИБ**: пути в формате `/F./path` автоматически преобразуются в `/F./workspace/path` через `normalizeIbPathForDocker()`
+- **ENTRYPOINT образов**: большинство образов vrunner имеют `ENTRYPOINT ["vrunner"]`, поэтому в команде не нужно указывать `vrunner` - только аргументы
+- **Требования к образу**: Docker-образ должен содержать установленную платформу 1С:Предприятие и vanessa-runner
+- **Выполнение команд**: `executeVRunnerInTerminal()` и `executeVRunner()` автоматически проверяют `shouldUseDocker()` и используют Docker при необходимости
+- **Множественные команды**: при выполнении нескольких команд (например, для всех расширений) нужно проверять `shouldUseDocker()` и использовать `executeVRunnerInTerminal()` для каждой команды отдельно, если Docker включен. Если Docker выключен, можно использовать `executeCommandsInTerminal()` для последовательного выполнения в одном терминале
 
 ### Работа с терминалами и оболочками
 - **Определение типа оболочки**: автоматически определяется через `detectShellType()` из настроек VS Code и переменных окружения
@@ -157,6 +177,8 @@
 - `vscode-api.md` - паттерны использования VS Code API
 - `vrunner-patterns.md` - паттерны работы с vrunner
 - `CI_CD_SETUP.md` - настройка CI/CD
+
+Информация о Docker интегрирована в основной `README.md` проекта.
 
 ## JSDoc стандарты
 - Все публичные методы классов должны иметь JSDoc комментарии
