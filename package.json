@@ -353,42 +353,52 @@
         "1c-platform-tools.useIbcmd": {
           "type": "boolean",
           "default": false,
-          "description": "Использовать утилиту ibcmd вместо конфигуратора для выполнения операций с информационной базой. ibcmd - утилита командной строки, которая ускоряет выполнение операций (загрузка, выгрузка, сборка, разбор конфигурации и расширений) без запуска графического интерфейса Конфигуратора."
+          "description": "Использовать утилиту ibcmd вместо конфигуратора для выполнения операций с информационной базой. ibcmd - утилита командной строки, которая ускоряет выполнение операций (загрузка, выгрузка, сборка, разбор конфигурации и расширений) без запуска графического интерфейса Конфигуратора. Примечание: при использовании Docker (docker.enabled = true) ibcmd используется автоматически, так как в Docker нет GUI."
         },
         "1c-platform-tools.vrunner.initSettingsPath": {
           "type": "string",
           "default": "./tools/vrunner.init.json",
           "description": "Путь к файлу настроек инициализации vrunner (vrunner.init.json)"
         },
-        "1c-platform-tools.paths.build": {
+        "1c-platform-tools.paths.out": {
           "type": "string",
           "default": "build/out",
-          "description": "Путь к папке сборки"
+          "description": "Путь к результатам сборки"
         },
-        "1c-platform-tools.paths.src": {
+        "1c-platform-tools.paths.cf": {
           "type": "string",
           "default": "src/cf",
-          "description": "Путь к исходникам конфигурации"
+          "description": "Путь к исходному коду конфигурации"
         },
         "1c-platform-tools.paths.cfe": {
           "type": "string",
           "default": "src/cfe",
-          "description": "Путь к исходникам расширений"
+          "description": "Путь к исходному коду расширений"
         },
         "1c-platform-tools.paths.epf": {
           "type": "string",
           "default": "src/epf",
-          "description": "Путь к исходникам внешних обработок"
+          "description": "Путь к исходному коду внешних обработок"
         },
         "1c-platform-tools.paths.erf": {
           "type": "string",
           "default": "src/erf",
-          "description": "Путь к исходникам внешних отчетов"
+          "description": "Путь к исходному коду внешних отчетов"
         },
         "1c-platform-tools.allure.path": {
           "type": "string",
           "default": "allure",
           "description": "Путь к allure"
+        },
+        "1c-platform-tools.docker.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Использовать Docker для выполнения команд vrunner. Включает выполнение команд vrunner через Docker-контейнер вместо локального выполнения."
+        },
+        "1c-platform-tools.docker.image": {
+          "type": "string",
+          "default": "",
+          "description": "Docker-образ для выполнения команд vrunner. Образ должен содержать установленную платформу 1С:Предприятие и vanessa-runner. Пример: 'myregistry/onec-image:8.3.25' или 'localhost/onec-image:latest'. Если не указан, будет показана ошибка с инструкцией."
         }
       }
     }
