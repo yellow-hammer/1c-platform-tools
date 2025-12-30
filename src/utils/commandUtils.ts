@@ -14,6 +14,7 @@
  */
 
 import * as vscode from 'vscode';
+import * as path from 'node:path';
 
 /**
  * Тип оболочки терминала
@@ -206,14 +207,6 @@ function detectShellFromEnvUnix(): ShellType {
  * 4. Значение по умолчанию (PowerShell для Windows, bash для Unix)
  * 
  * @returns Тип оболочки терминала
- * 
- * @example
- * ```typescript
- * const shell = detectShellType();
- * // В Git Bash на Windows вернет 'bash'
- * // В PowerShell вернет 'powershell'
- * // В cmd вернет 'cmd'
- * ```
  */
 export function detectShellType(): ShellType {
 	if (process.platform === 'win32') {
@@ -251,9 +244,6 @@ export function detectShellType(): ShellType {
  * 
  * @param arg - Аргумент команды
  * @returns Экранированный аргумент (в одинарных кавычках, если содержит пробелы или спецсимволы)
- * @example
- * escapeArgForPowerShell('path with spaces') // "'path with spaces'"
- * escapeArgForPowerShell('command1;command2') // "'command1;command2'"
  */
 function escapeArgForPowerShell(arg: string): string {
 	// Экранируем аргументы, содержащие пробелы, $, обратные кавычки или точку с запятой
@@ -290,12 +280,6 @@ function escapeArgForCmdBash(arg: string): string {
  * @param args - Массив аргументов команды
  * @param shellType - Тип оболочки (опционально, определяется автоматически)
  * @returns Строка с экранированными аргументами, разделенными пробелами
- * 
- * @example
- * ```typescript
- * escapeCommandArgs(['path/to/file', '--option', 'value with spaces'], 'bash')
- * // Вернет: 'path/to/file --option "value with spaces"'
- * ```
  */
 export function escapeCommandArgs(args: string[], shellType?: ShellType): string {
 	const shell = shellType || detectShellType();
@@ -338,17 +322,6 @@ function normalizePathForShell(filePath: string, shellType: ShellType): string {
  * @param arg - Аргумент команды
  * @param shellType - Тип оболочки
  * @returns Нормализованный аргумент
- * 
- * @example
- * ```typescript
- * // В Git Bash на Windows
- * normalizeArgForShell('oscript_modules\\bin\\vrunner.bat', 'bash')
- * // Вернет: 'oscript_modules/bin/vrunner.bat'
- * 
- * // Параметры команд не изменяются
- * normalizeArgForShell('--ibconnection', 'bash')
- * // Вернет: '--ibconnection'
- * ```
  */
 export function normalizeArgForShell(arg: string, shellType: ShellType): string {
 	if (isBashLikeOnWindows(shellType)) {
@@ -404,17 +377,6 @@ function getEncodingPrefix(shellType: ShellType): string {
  * @param args - Аргументы команды
  * @param shellType - Тип оболочки (опционально, определяется автоматически через detectShellType())
  * @returns Строка команды для выполнения в терминале
- * 
- * @example
- * ```typescript
- * // В PowerShell
- * buildCommand('vrunner.bat', ['init-dev', '--ibconnection', '/F./build/ib'], 'powershell')
- * // Вернет: '[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; vrunner.bat init-dev --ibconnection /F./build/ib'
- * 
- * // В Git Bash на Windows
- * buildCommand('oscript_modules\\bin\\vrunner.bat', ['init-dev'], 'bash')
- * // Вернет: 'oscript_modules/bin/vrunner.bat init-dev'
- * ```
  */
 export function buildCommand(executablePath: string, args: string[], shellType?: ShellType): string {
 	const shell = shellType || detectShellType();
@@ -455,19 +417,70 @@ function getCommandSeparator(shellType: ShellType): string {
  * @param commands - Массив команд для объединения
  * @param shellType - Тип оболочки (опционально, определяется автоматически через detectShellType())
  * @returns Объединенная строка команд с соответствующими разделителями
- * 
- * @example
- * ```typescript
- * // В PowerShell
- * joinCommands(['command1', 'command2'], 'powershell')
- * // Вернет: 'command1; command2'
- * 
- * // В cmd/bash
- * joinCommands(['command1', 'command2'], 'cmd')
- * // Вернет: 'command1 && command2'
- * ```
  */
 export function joinCommands(commands: string[], shellType?: ShellType): string {
 	const shell = shellType || detectShellType();
 	return commands.join(getCommandSeparator(shell));
+}
+
+/**
+ * Формирует команду Docker для выполнения vrunner в контейнере
+ * 
+ * Создает команду `docker run` с монтированием workspace и выполнением vrunner внутри контейнера.
+ * Автоматически нормализует пути для указанной оболочки. В контейнере всегда используется bash (Linux),
+ * поэтому аргументы экранируются для bash, а не для оболочки хоста.
+ * 
+ * **Важно:** Предполагается, что Docker-образ имеет `ENTRYPOINT ["vrunner"]`, поэтому команда `vrunner`
+ * не добавляется в аргументы. Если образ не имеет ENTRYPOINT, можно использовать `--entrypoint vrunner`
+ * или указать `vrunner` явно в аргументах.
+ * 
+ * @param dockerImage - Docker-образ для выполнения команд (например, 'yellow-hammer/vrunner:8.3.27.1786')
+ * @param vrunnerArgs - Аргументы команды vrunner (без префикса 'vrunner')
+ * @param workspaceRoot - Корневая директория workspace (будет смонтирована в /workspace)
+ * @param shellType - Тип оболочки терминала хоста (опционально, определяется автоматически)
+ * @returns Строка команды Docker для выполнения в терминале
+ */
+export function buildDockerCommand(
+	dockerImage: string,
+	vrunnerArgs: string[],
+	workspaceRoot: string,
+	shellType?: ShellType
+): string {
+	const shell = shellType || detectShellType();
+	const normalizedWorkspace = normalizePathForShell(workspaceRoot, shell);
+	const volumeMount = `-v "${normalizedWorkspace}:/workspace"`;
+	const workDir = `-w /workspace`;
+	const normalizedArgs = vrunnerArgs.map((arg) => normalizeArgForShell(arg, shell));
+	const argsString = escapeCommandArgs(normalizedArgs, 'bash');
+	const dockerCmd = `docker run --rm ${volumeMount} ${workDir} ${dockerImage} ${argsString}`;
+	
+	return dockerCmd;
+}
+
+/**
+ * Нормализует путь к информационной базе для работы в Docker-контейнере
+ * 
+ * Преобразует пути в формат, понятный внутри контейнера:
+ * - Формат 1С `/F./path` **не** изменяется, так как `.` уже указывает на рабочую директорию контейнера (`/workspace`)
+ * - Абсолютные пути workspace преобразуются в относительные от рабочей директории (например, `./build/ib`)
+ * - Относительные пути остаются без изменений
+ * 
+ * @param ibPath - Путь к информационной базе (может быть в формате `/F./build/ib` или `./build/ib`)
+ * @param workspaceRoot - Корневая директория workspace
+ * @returns Нормализованный путь для использования в Docker-контейнере
+ */
+export function normalizeIbPathForDocker(ibPath: string, workspaceRoot: string): string {
+	if (ibPath.startsWith('/F.')) {
+		// Формат /F./path уже относительный от рабочей директории (`.` → /workspace),
+		// поэтому для Docker его менять не нужно
+		return ibPath;
+	}
+	
+	if (path.isAbsolute(ibPath) && ibPath.startsWith(workspaceRoot)) {
+		const relativePath = path.relative(workspaceRoot, ibPath);
+		const unixPath = relativePath.replaceAll('\\', '/');
+		return `./${unixPath}`;
+	}
+	
+	return ibPath;
 }
