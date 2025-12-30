@@ -1,0 +1,8 @@
+# Сгенерированные файлы
+**/build/**
+**/dist/**
+**/out/**
+**/node_modules/**
+
+# Cursor файлы
+**/*.cursorrules
