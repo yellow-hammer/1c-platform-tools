@@ -4,7 +4,15 @@ import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import * as fsSync from 'node:fs';
 import * as os from 'node:os';
-import { escapeCommandArgs, buildCommand, detectShellType, ShellType, normalizeArgForShell } from './utils/commandUtils';
+import { escapeCommandArgs, buildCommand, detectShellType, ShellType, normalizeArgForShell, buildDockerCommand, normalizeIbPathForDocker } from './utils/commandUtils';
+
+/**
+ * Максимальный размер буфера для выполнения команд (10 МБ)
+ * 
+ * Используется для ограничения размера вывода команд, чтобы избежать
+ * проблем с памятью при выполнении команд с большим выводом.
+ */
+const MAX_EXEC_BUFFER_SIZE = 10 * 1024 * 1024;
 
 /**
  * Результат выполнения команды vrunner
@@ -32,12 +40,6 @@ export interface VRunnerExecutionResult {
  * - Работой с env.json для параметров подключения к ИБ
  * 
  * Все команды расширения используют этот менеджер для доступа к vrunner.
- * 
- * @example
- * ```typescript
- * const vrunner = VRunnerManager.getInstance();
- * vrunner.executeVRunnerInTerminal(['init-dev', '--ibconnection', '/F./build/ib']);
- * ```
  */
 export class VRunnerManager {
 	private static instance: VRunnerManager;
@@ -60,18 +62,9 @@ export class VRunnerManager {
 	 * При первом вызове создает экземпляр, при последующих возвращает существующий.
 	 * Если передан context и путь к расширению еще не установлен, обновляет его.
 	 * 
-	 * @param context - Контекст расширения VS Code (опционально, используется для установки пути к расширению)
-	 * @returns Экземпляр VRunnerManager
-	 * 
-	 * @example
-	 * ```typescript
-	 * // При активации расширения
-	 * const vrunner = VRunnerManager.getInstance(context);
-	 * 
-	 * // В командах (context уже не нужен)
-	 * const vrunner = VRunnerManager.getInstance();
-	 * ```
-	 */
+ * @param context - Контекст расширения VS Code (опционально, используется для установки пути к расширению)
+ * @returns Экземпляр VRunnerManager
+ */
 	public static getInstance(context?: vscode.ExtensionContext): VRunnerManager {
 		if (!VRunnerManager.instance) {
 			VRunnerManager.instance = new VRunnerManager(context);
@@ -89,13 +82,6 @@ export class VRunnerManager {
 	 * 
 	 * @returns Относительный путь к vrunner.bat (например, 'oscript_modules/bin/vrunner.bat')
 	 *          или 'vrunner' для поиска в PATH
-	 * 
-	 * @example
-	 * ```typescript
-	 * const vrunnerPath = vrunner.getVRunnerPath();
-	 * // Если найден в workspace: 'oscript_modules/bin/vrunner.bat'
-	 * // Если не найден: 'vrunner'
-	 * ```
 	 */
 	public getVRunnerPath(): string {
 		if (this.workspaceRoot) {
@@ -148,29 +134,29 @@ export class VRunnerManager {
 	}
 
 	/**
-	 * Получает путь к исходникам конфигурации
+	 * Получает путь к исходному коду конфигурации
 	 * 
-	 * Путь берется из настроек VS Code (1c-platform-tools.paths.src).
+	 * Путь берется из настроек VS Code (1c-platform-tools.paths.cf).
 	 * По умолчанию: 'src/cf'
 	 * 
-	 * @returns Путь к исходникам конфигурации (относительно workspace)
+	 * @returns Путь к исходному коду конфигурации (относительно workspace)
 	 */
-	public getSrcPath(): string {
+	public getCfPath(): string {
 		const config = vscode.workspace.getConfiguration('1c-platform-tools');
-		return config.get<string>('paths.src', 'src/cf');
+		return config.get<string>('paths.cf', 'src/cf');
 	}
 
 	/**
-	 * Получает путь к папке сборки
+	 * Получает путь к результатам сборки
 	 * 
-	 * Путь берется из настроек VS Code (1c-platform-tools.paths.build).
+	 * Путь берется из настроек VS Code (1c-platform-tools.paths.out).
 	 * По умолчанию: 'build/out'
 	 * 
-	 * @returns Путь к папке сборки (относительно workspace)
+	 * @returns Путь к результатам сборки (относительно workspace)
 	 */
-	public getBuildPath(): string {
+	public getOutPath(): string {
 		const config = vscode.workspace.getConfiguration('1c-platform-tools');
-		return config.get<string>('paths.build', 'build/out');
+		return config.get<string>('paths.out', 'build/out');
 	}
 
 	/**
@@ -213,10 +199,13 @@ export class VRunnerManager {
 	}
 
 	/**
-	 * Проверяет, включена ли настройка использования ibcmd
+	 * Проверяет, нужно ли использовать ibcmd
 	 * 
-	 * Настройка берется из VS Code (1c-platform-tools.useIbcmd).
-	 * По умолчанию: false
+	 * Логика определения:
+	 * 1. Если настройка useIbcmd = true, всегда использовать ibcmd
+	 * 2. Если используется Docker (docker.enabled = true), автоматически использовать ibcmd
+	 *    (так как в Docker нет GUI, ibcmd - это правильный выбор)
+	 * 3. Иначе - не использовать ibcmd
 	 * 
 	 * ibcmd - это утилита командной строки платформы 1С:Предприятие,
 	 * которая позволяет выполнять операции с конфигурацией без запуска
@@ -227,7 +216,18 @@ export class VRunnerManager {
 	 */
 	public getUseIbcmd(): boolean {
 		const config = vscode.workspace.getConfiguration('1c-platform-tools');
-		return config.get<boolean>('useIbcmd', false);
+		const useIbcmdSetting = config.get<boolean>('useIbcmd', false);
+		
+		if (useIbcmdSetting) {
+			return true;
+		}
+		
+		const dockerEnabled = config.get<boolean>('docker.enabled', false);
+		if (dockerEnabled) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	/**
@@ -244,6 +244,145 @@ export class VRunnerManager {
 		} catch {
 			return false;
 		}
+	}
+
+	/**
+	 * Проверяет, доступен ли Docker для выполнения команд
+	 * 
+	 * Выполняет команду `docker --version` для проверки доступности Docker.
+	 * 
+	 * @returns Промис, который разрешается true, если Docker доступен, иначе false
+	 */
+	public async checkDockerAvailable(): Promise<boolean> {
+		return new Promise((resolve) => {
+			exec('docker --version', { maxBuffer: 1024 * 1024 }, (error) => {
+				resolve(!error);
+			});
+		});
+	}
+
+	/**
+	 * Проверяет, нужно ли использовать Docker для выполнения команд
+	 * 
+	 * Docker используется только если пользователь явно включил настройку `docker.enabled = true`.
+	 * Автоматическое определение отключено - пользователь должен сам решить, использовать Docker или нет.
+	 * 
+	 * @returns Промис, который разрешается `true`, если нужно использовать Docker, иначе `false`
+	 */
+	public async shouldUseDocker(): Promise<boolean> {
+		const config = vscode.workspace.getConfiguration('1c-platform-tools');
+		const dockerEnabled = config.get<boolean>('docker.enabled', false);
+		
+		return dockerEnabled;
+	}
+
+	/**
+	 * Проверяет, поддерживает ли команда vrunner параметр --ibcmd
+	 * 
+	 * Команды, которые поддерживают --ibcmd:
+	 * - Операции с информационными базами: init-dev, update-dev, dump, restore, dump-dt, load-dt
+	 * - Операции с конфигурацией: load, dump, dumpcf, compile, decompile
+	 * - Операции с расширениями: compileext, decompileext, unloadext, compileexttocfe
+	 * - Операции с внешними файлами: compileepf, decompileepf
+	 * 
+	 * Команды, которые НЕ поддерживают --ibcmd:
+	 * - run, designer (запуск GUI приложений)
+	 * - xunit, syntax-check, vanessa (тесты)
+	 * 
+	 * @param args - Аргументы команды vrunner (первый аргумент - имя команды)
+	 * @returns true, если команда поддерживает --ibcmd, иначе false
+	 */
+	public supportsIbcmd(args: string[]): boolean {
+		if (args.length === 0) {
+			return false;
+		}
+
+		const command = args[0];
+		
+		// Команды, которые поддерживают --ibcmd
+		const ibcmdSupportedCommands = [
+			// Информационные базы
+			'init-dev', 
+			'update-dev',
+			'dump',       
+			'restore',    
+
+			// Конфигурация
+			'load',       
+			'unload',     
+			'compile',    
+			'decompile',  
+
+			// Расширения
+			'compileext',      
+			'decompileext',    
+			'unloadext',       
+			'compileexttocfe'  
+		];
+
+		return ibcmdSupportedCommands.includes(command);
+	}
+
+	/**
+	 * Получает Docker-образ из настроек VS Code
+	 * 
+	 * Настройка берется из `1c-platform-tools.docker.image`.
+	 * Образ должен содержать установленную платформу 1С:Предприятие и vanessa-runner.
+	 * 
+	 * @returns Docker-образ для выполнения команд
+	 * @throws {Error} Если образ не указан в настройках (пустая строка)
+	 */
+	public getDockerImage(): string {
+		const config = vscode.workspace.getConfiguration('1c-platform-tools');
+		const image = config.get<string>('docker.image', '');
+		
+		if (!image) {
+			throw new Error(
+				'Docker-образ не указан в настройках. Укажите образ в настройках расширения ' +
+				'(1c-platform-tools.docker.image). Пример: "myregistry/onec-image:8.3.25" или ' +
+				'"localhost/onec-image:latest". Образ должен содержать установленную платформу 1С:Предприятие и vanessa-runner.'
+			);
+		}
+		
+		return image;
+	}
+
+	/**
+	 * Нормализует аргументы команды для работы в Docker-контейнере
+	 * 
+	 * Преобразует пути к информационной базе и другим файлам в формат, понятный внутри контейнера.
+	 * Выполняет следующие преобразования:
+	 * - Пути в формате 1С `/F./path` не изменяются (`.` уже указывает на `/workspace` внутри контейнера)
+	 * - Абсолютные пути workspace преобразуются в относительные от рабочей директории (например, `./build/ib`)
+	 * - Параметры команд (например, `--ibconnection`) остаются без изменений
+	 * 
+	 * @param args - Массив аргументов команды
+	 * @returns Массив нормализованных аргументов для Docker
+	 */
+	public processCommandArgsForDocker(args: string[]): string[] {
+		if (!this.workspaceRoot) {
+			return args;
+		}
+		
+		const workspaceRoot = this.workspaceRoot;
+		
+		return args.map((arg, index) => {
+			if (arg === '--ibconnection' && index + 1 < args.length) {
+				return arg;
+			}
+			
+			if (index > 0 && args[index - 1] === '--ibconnection') {
+				return normalizeIbPathForDocker(arg, workspaceRoot);
+			}
+			
+			if (path.isAbsolute(arg) && arg.startsWith(workspaceRoot)) {
+				const relativePath = path.relative(workspaceRoot, arg);
+				const unixPath = relativePath.replaceAll('\\', '/');
+				return `./${unixPath}`;
+			}
+			
+			return arg;
+		});
 	}
 
 	/**
@@ -340,7 +479,13 @@ export class VRunnerManager {
 	 * 
 	 * Создает новый терминал или использует существующий, отправляет команду
 	 * и показывает терминал пользователю. Автоматически обрабатывает пути
-	 * и нормализует их для указанной оболочки.
+	 * и нормализует их для указанной оболочки. Поддерживает выполнение через Docker,
+	 * если включена настройка `docker.enabled = true`.
+	 * 
+	 * При использовании Docker:
+	 * - Workspace монтируется в `/workspace` внутри контейнера
+	 * - Пути автоматически нормализуются для Docker-окружения
+	 * - Параметр `--ibcmd` используется автоматически (так как в Docker нет GUI)
 	 * 
 	 * @param args - Аргументы команды vrunner (например, ['init-dev', '--ibconnection', '/F./build/ib'])
 	 * @param options - Опции выполнения
@@ -348,25 +493,53 @@ export class VRunnerManager {
 	 * @param options.env - Дополнительные переменные окружения
 	 * @param options.name - Имя терминала (по умолчанию '1C Platform Tools')
 	 * @param options.shellType - Тип оболочки (опционально, определяется автоматически)
-	 * 
-	 * @example
-	 * ```typescript
-	 * vrunner.executeVRunnerInTerminal(['init-dev', ...ibConnectionParam], {
-	 *   cwd: workspaceRoot,
-	 *   name: 'Создание ИБ'
-	 * });
-	 * ```
 	 */
-	public executeVRunnerInTerminal(
+	public async executeVRunnerInTerminal(
 		args: string[],
 		options?: { cwd?: string; env?: NodeJS.ProcessEnv; name?: string; shellType?: ShellType }
-	): void {
-		const vrunnerPath = this.getVRunnerPath();
+	): Promise<void> {
 		const cwd = options?.cwd || this.workspaceRoot || os.homedir();
 		const shellType = options?.shellType || detectShellType();
 		
-		const processedArgs = this.processCommandArgs(args, cwd, shellType);
-		const command = buildCommand(vrunnerPath, processedArgs, shellType);
+		const useDocker = await this.shouldUseDocker();
+		
+		let command: string;
+		
+		if (useDocker) {
+			if (!this.workspaceRoot) {
+				vscode.window.showErrorMessage('Для использования Docker необходимо открыть рабочую область');
+				return;
+			}
+
+			// Проверяем, поддерживает ли команда --ibcmd
+			if (!this.supportsIbcmd(args)) {
+				const commandName = args[0] || 'команда';
+				const action = await vscode.window.showWarningMessage(
+					`Команда "${commandName}" не поддерживает параметр --ibcmd, который необходим для работы в Docker. ` +
+					'Эта команда может не работать корректно в Docker-контейнере без графического интерфейса. ' +
+					'Продолжить выполнение?',
+					'Да',
+					'Нет'
+				);
+				
+				if (action !== 'Да') {
+					return;
+				}
+			}
+			
+			try {
+				const dockerImage = this.getDockerImage();
+				const processedArgs = this.processCommandArgsForDocker(args);
+				command = buildDockerCommand(dockerImage, processedArgs, this.workspaceRoot, shellType);
+			} catch (error) {
+				vscode.window.showErrorMessage((error as Error).message);
+				return;
+			}
+		} else {
+			const vrunnerPath = this.getVRunnerPath();
+			const processedArgs = this.processCommandArgs(args, cwd, shellType);
+			command = buildCommand(vrunnerPath, processedArgs, shellType);
+		}
 
 		const terminal = vscode.window.createTerminal({
 			name: options?.name || '1C Platform Tools',
@@ -382,37 +555,63 @@ export class VRunnerManager {
 	 * Выполняет команду vrunner синхронно (для проверок)
 	 * 
 	 * Используется для проверок и валидации, а не для выполнения команд пользователю.
-	 * Для выполнения команд пользователю используйте executeVRunnerInTerminal().
+	 * Для выполнения команд пользователю используйте `executeVRunnerInTerminal()`.
+	 * 
+	 * Поддерживает выполнение через Docker, если включена настройка `docker.enabled = true`.
+	 * При использовании Docker пути автоматически нормализуются для Docker-окружения.
 	 * 
 	 * @param args - Аргументы команды vrunner
 	 * @param options - Опции выполнения
 	 * @param options.cwd - Рабочая директория (по умолчанию workspace root)
 	 * @param options.env - Дополнительные переменные окружения
 	 * @returns Промис, который разрешается результатом выполнения команды
-	 * 
-	 * @example
-	 * ```typescript
-	 * const result = await vrunner.executeVRunner(['version']);
-	 * if (result.success) {
-	 *   // vrunner установлен и доступен
-	 *   const version = result.stdout.trim();
-	 * }
-	 * ```
 	 */
 	public async executeVRunner(
 		args: string[],
 		options?: { cwd?: string; env?: NodeJS.ProcessEnv }
 	): Promise<VRunnerExecutionResult> {
+		const useDocker = await this.shouldUseDocker();
+		const cwd = options?.cwd || this.workspaceRoot;
+		
 		return new Promise((resolve) => {
-			const vrunnerPath = this.getVRunnerPath();
-			const argsString = escapeCommandArgs(args);
-			const quotedPath = vrunnerPath.includes(' ') ? `"${vrunnerPath}"` : vrunnerPath;
-			const command = `${quotedPath} ${argsString}`;
+			let command: string;
+			
+			if (useDocker) {
+				if (!this.workspaceRoot) {
+					resolve({
+						success: false,
+						stdout: '',
+						stderr: 'Для использования Docker необходимо открыть рабочую область',
+						exitCode: 1
+					});
+					return;
+				}
+				
+				try {
+					const dockerImage = this.getDockerImage();
+					const processedArgs = this.processCommandArgsForDocker(args);
+					const shellType = detectShellType();
+					command = buildDockerCommand(dockerImage, processedArgs, this.workspaceRoot, shellType);
+				} catch (error) {
+					resolve({
+						success: false,
+						stdout: '',
+						stderr: (error as Error).message,
+						exitCode: 1
+					});
+					return;
+				}
+			} else {
+				const vrunnerPath = this.getVRunnerPath();
+				const argsString = escapeCommandArgs(args);
+				const quotedPath = vrunnerPath.includes(' ') ? `"${vrunnerPath}"` : vrunnerPath;
+				command = `${quotedPath} ${argsString}`;
+			}
 
 			const execOptions = {
-				cwd: options?.cwd || this.workspaceRoot,
+				cwd: cwd,
 				env: { ...process.env, ...options?.env },
-				maxBuffer: 10 * 1024 * 1024,
+				maxBuffer: MAX_EXEC_BUFFER_SIZE,
 				encoding: 'utf8' as BufferEncoding
 			};
 
@@ -483,7 +682,7 @@ export class VRunnerManager {
 
 			const execOptions = {
 				cwd: options?.cwd || this.workspaceRoot,
-				maxBuffer: 10 * 1024 * 1024,
+				maxBuffer: MAX_EXEC_BUFFER_SIZE,
 				encoding: 'utf8' as BufferEncoding
 			};
 
@@ -554,7 +753,7 @@ export class VRunnerManager {
 
 			const execOptions = {
 				cwd: options?.cwd || this.workspaceRoot,
-				maxBuffer: 10 * 1024 * 1024,
+				maxBuffer: MAX_EXEC_BUFFER_SIZE,
 				encoding: 'utf8' as BufferEncoding
 			};
 
@@ -579,12 +778,6 @@ export class VRunnerManager {
 	 * 
 	 * @returns Промис, который разрешается содержимым env.json или пустым объектом при ошибке
 	 * @throws {Error} Если рабочая область не открыта
-	 * 
-	 * @example
-	 * ```typescript
-	 * const env = await vrunner.readEnvJson();
-	 * const ibConnection = env.default?.['--ibconnection'];
-	 * ```
 	 */
 	public async readEnvJson(): Promise<any> {
 		if (!this.workspaceRoot) {
@@ -627,12 +820,6 @@ export class VRunnerManager {
 	 * 
 	 * @param settingsFile - Путь к файлу настроек (относительно workspace). По умолчанию 'env.json'
 	 * @returns Массив параметров ['--settings', 'путь_к_файлу']
-	 * 
-	 * @example
-	 * ```typescript
-	 * const settingsParam = vrunner.getSettingsParam('env.json');
-	 * // Вернет: ['--settings', 'env.json']
-	 * ```
 	 */
 	public getSettingsParam(settingsFile: string = 'env.json'): string[] {
 		return ['--settings', settingsFile];
@@ -649,15 +836,6 @@ export class VRunnerManager {
 	 * @param ibConnection - Строка подключения к ИБ. Если указана, используется напрямую
 	 * @param settingsFile - Путь к файлу настроек (относительно workspace). По умолчанию 'env.json'
 	 * @returns Промис, который разрешается массивом параметров ['--ibconnection', 'строка_подключения']
-	 * 
-	 * @example
-	 * ```typescript
-	 * const ibParam = await vrunner.getIbConnectionParam();
-	 * // Вернет: ['--ibconnection', '/F./build/ib']
-	 * 
-	 * // Использование с spread оператором
-	 * const args = ['init-dev', ...ibParam];
-	 * ```
 	 */
 	public async getIbConnectionParam(ibConnection?: string, settingsFile: string = 'env.json'): Promise<string[]> {
 		if (ibConnection) {
