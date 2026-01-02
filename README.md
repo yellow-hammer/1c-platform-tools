@@ -1,6 +1,6 @@
 # 1C Platform Tools
 
-[![OpenYellow](https://img.shields.io/endpoint?url=https://openyellow.openintegrations.dev/data/badges/2/1113279075.json)](https://openyellow.org/grid?filter=top&repo=1113279075)
+[![OpenYellow](https://openyellow.openintegrations.dev/data/badges/1113279075.png)](https://openyellow.org/grid?filter=top&repo=1113279075)
 
 Расширение для Visual Studio Code с инструментами разработки для экосистемы 1С. Предоставляет удобный интерфейс для работы с проектами 1С через панель команд и дерево задач.
 
