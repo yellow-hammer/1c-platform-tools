@@ -136,6 +136,11 @@
         "category": "1C"
       },
       {
+        "command": "1c-platform-tools.configuration.dumpIncrementToSrc",
+        "title": "Выгрузить изменения в src/cf",
+        "category": "1C"
+      },
+      {
         "command": "1c-platform-tools.configuration.dumpToCf",
         "title": "Выгрузить конфигурацию в 1Cv8.cf",
         "category": "1C"

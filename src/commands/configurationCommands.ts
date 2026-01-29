@@ -6,6 +6,7 @@ import {
 	getLoadConfigurationFromSrcCommandName,
 	getLoadConfigurationFromCfCommandName,
 	getDumpConfigurationToSrcCommandName,
+	getDumpConfigurationIncrementToSrcCommandName,
 	getDumpConfigurationToCfCommandName,
 	getDumpConfigurationToDistCommandName,
 	getBuildConfigurationCommandName,
@@ -83,6 +84,113 @@ export class ConfigurationCommands extends BaseCommand {
 			cwd: workspaceRoot,
 			name: commandName.title
 		});
+	}
+
+	/**
+	 * Выгружает только изменения конфигурации из информационной базы в исходники
+	 * Использует файл ConfigDumpInfo.xml для определения измененных объектов
+	 * Если файл версии отсутствует, выполняется полная выгрузка
+	 * @returns Промис, который разрешается после запуска команды
+	 */
+	async dumpIncrementToSrc(): Promise<void> {
+		const workspaceRoot = this.ensureWorkspace();
+		if (!workspaceRoot) {
+			return;
+		}
+
+		const srcPath = this.vrunner.getCfPath();
+		const srcFullPath = path.join(workspaceRoot, srcPath);
+		const configDumpInfoPath = path.join(srcFullPath, 'ConfigDumpInfo.xml');
+		
+		const versionFileExists = await this.checkVersionFileExists(configDumpInfoPath);
+		
+		if (!versionFileExists && !(await this.handleMissingVersionFile(srcFullPath, srcPath))) {
+			return;
+		}
+
+		const ibConnectionParam = await this.vrunner.getIbConnectionParam();
+		const args: string[] = ['decompile', '--current', '--out', srcPath, ...ibConnectionParam];
+		
+		if (versionFileExists) {
+			const versionFileRelativePath = path.join(srcPath, 'ConfigDumpInfo.xml');
+			args.push('--versions', versionFileRelativePath);
+		}
+
+		const finalArgs = this.addIbcmdIfNeeded(args);
+		const commandName = getDumpConfigurationIncrementToSrcCommandName();
+
+		this.vrunner.executeVRunnerInTerminal(finalArgs, {
+			cwd: workspaceRoot,
+			name: commandName.title
+		});
+	}
+
+	/**
+	 * Проверяет существование файла версии ConfigDumpInfo.xml
+	 * @param configDumpInfoPath - Полный путь к файлу ConfigDumpInfo.xml
+	 * @returns Промис, который разрешается true, если файл существует, иначе false
+	 */
+	private async checkVersionFileExists(configDumpInfoPath: string): Promise<boolean> {
+		try {
+			await fs.access(configDumpInfoPath);
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	/**
+	 * Обрабатывает ситуацию, когда файл версии отсутствует
+	 * Если каталог не пуст, предлагает пользователю очистить его или отменить операцию
+	 * @param srcFullPath - Полный путь к каталогу исходников
+	 * @param srcPath - Относительный путь к каталогу исходников
+	 * @returns Промис, который разрешается true, если операция может быть продолжена, иначе false
+	 */
+	private async handleMissingVersionFile(srcFullPath: string, srcPath: string): Promise<boolean> {
+		try {
+			const entries = await fs.readdir(srcFullPath);
+			const hasFiles = entries.some(entry => entry !== 'ConfigDumpInfo.xml');
+			
+			if (!hasFiles) {
+				return true;
+			}
+
+			const action = await vscode.window.showWarningMessage(
+				`Файл ConfigDumpInfo.xml не найден в каталоге ${srcPath}. Для инкрементальной выгрузки необходим файл версии. Выполните сначала полную выгрузку через "Выгрузить конфигурацию в src/cf".`,
+				'Выполнить полную выгрузку (очистить каталог)',
+				'Отмена'
+			);
+
+			if (action === 'Отмена' || action === undefined) {
+				return false;
+			}
+
+			if (action === 'Выполнить полную выгрузку (очистить каталог)') {
+				await this.clearDirectory(srcFullPath, entries);
+				return true;
+			}
+
+			return false;
+		} catch {
+			return true;
+		}
+	}
+
+	/**
+	 * Очищает каталог от всех файлов и подкаталогов
+	 * @param dirPath - Путь к каталогу
+	 * @param entries - Список записей в каталоге
+	 */
+	private async clearDirectory(dirPath: string, entries: string[]): Promise<void> {
+		for (const entry of entries) {
+			const entryPath = path.join(dirPath, entry);
+			const stat = await fs.stat(entryPath);
+			if (stat.isDirectory()) {
+				await fs.rm(entryPath, { recursive: true, force: true });
+			} else {
+				await fs.unlink(entryPath);
+			}
+		}
 	}
 
 	/**

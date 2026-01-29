@@ -76,6 +76,9 @@ export function registerCommands(context: vscode.ExtensionContext, commands: Com
 		vscode.commands.registerCommand('1c-platform-tools.configuration.dumpToSrc', () => {
 			commands.configuration.dumpToSrc();
 		}),
+		vscode.commands.registerCommand('1c-platform-tools.configuration.dumpIncrementToSrc', () => {
+			commands.configuration.dumpIncrementToSrc();
+		}),
 		vscode.commands.registerCommand('1c-platform-tools.configuration.dumpToCf', () => {
 			commands.configuration.dumpToCf();
 		}),

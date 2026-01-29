@@ -305,6 +305,16 @@ export function getDumpConfigurationToSrcCommandName(): CommandNameAndTitle {
 }
 
 /**
+ * Получить название и заголовок для команды инкрементальной выгрузки конфигурации в src/cf (только изменения)
+ */
+export function getDumpConfigurationIncrementToSrcCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Выгрузить изменения в src/cf',
+		title: 'Выгрузить изменения в src/cf'
+	};
+}
+
+/**
  * Получить название и заголовок для команды выгрузки конфигурации в 1Cv8.cf
  */
 export function getDumpConfigurationToCfCommandName(): CommandNameAndTitle {

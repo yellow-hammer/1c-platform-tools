@@ -15,6 +15,7 @@ import {
 	getLoadConfigurationFromFilesByListCommandName,
 	getLoadConfigurationFromCfCommandName,
 	getDumpConfigurationToSrcCommandName,
+	getDumpConfigurationIncrementToSrcCommandName,
 	getDumpConfigurationToCfCommandName,
 	getDumpConfigurationToDistCommandName,
 	getBuildConfigurationCommandName,
@@ -314,6 +315,15 @@ export class PlatformTreeDataProvider implements vscode.TreeDataProvider<Platfor
 						{
 							command: '1c-platform-tools.configuration.dumpToSrc',
 							title: getDumpConfigurationToSrcCommandName().title,
+						}
+					),
+					this.createTreeItem(
+						'📤 Выгрузить изменения в src/cf',
+						TreeItemType.Task,
+						vscode.TreeItemCollapsibleState.None,
+						{
+							command: '1c-platform-tools.configuration.dumpIncrementToSrc',
+							title: getDumpConfigurationIncrementToSrcCommandName().title,
 						}
 					),
 					this.createTreeItem(
