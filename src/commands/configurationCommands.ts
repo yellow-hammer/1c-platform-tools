@@ -14,6 +14,10 @@ import {
 	getLoadConfigurationIncrementFromSrcCommandName,
 	getLoadConfigurationFromFilesByListCommandName
 } from '../commandNames';
+import {
+	checkVersionFileExists,
+	handleMissingVersionFile
+} from '../utils/configVersionUtils';
 
 /**
  * Команды для работы с конфигурацией
@@ -102,9 +106,9 @@ export class ConfigurationCommands extends BaseCommand {
 		const srcFullPath = path.join(workspaceRoot, srcPath);
 		const configDumpInfoPath = path.join(srcFullPath, 'ConfigDumpInfo.xml');
 		
-		const versionFileExists = await this.checkVersionFileExists(configDumpInfoPath);
+		const versionFileExists = await checkVersionFileExists(configDumpInfoPath);
 		
-		if (!versionFileExists && !(await this.handleMissingVersionFile(srcFullPath, srcPath))) {
+		if (!versionFileExists && !(await handleMissingVersionFile(srcFullPath, srcPath))) {
 			return;
 		}
 
@@ -123,74 +127,6 @@ export class ConfigurationCommands extends BaseCommand {
 			cwd: workspaceRoot,
 			name: commandName.title
 		});
-	}
-
-	/**
-	 * Проверяет существование файла версии ConfigDumpInfo.xml
-	 * @param configDumpInfoPath - Полный путь к файлу ConfigDumpInfo.xml
-	 * @returns Промис, который разрешается true, если файл существует, иначе false
-	 */
-	private async checkVersionFileExists(configDumpInfoPath: string): Promise<boolean> {
-		try {
-			await fs.access(configDumpInfoPath);
-			return true;
-		} catch {
-			return false;
-		}
-	}
-
-	/**
-	 * Обрабатывает ситуацию, когда файл версии отсутствует
-	 * Если каталог не пуст, предлагает пользователю очистить его или отменить операцию
-	 * @param srcFullPath - Полный путь к каталогу исходников
-	 * @param srcPath - Относительный путь к каталогу исходников
-	 * @returns Промис, который разрешается true, если операция может быть продолжена, иначе false
-	 */
-	private async handleMissingVersionFile(srcFullPath: string, srcPath: string): Promise<boolean> {
-		try {
-			const entries = await fs.readdir(srcFullPath);
-			const hasFiles = entries.some(entry => entry !== 'ConfigDumpInfo.xml');
-			
-			if (!hasFiles) {
-				return true;
-			}
-
-			const action = await vscode.window.showWarningMessage(
-				`Файл ConfigDumpInfo.xml не найден в каталоге ${srcPath}. Для инкрементальной выгрузки необходим файл версии. Выполните сначала полную выгрузку через "Выгрузить конфигурацию в src/cf".`,
-				'Выполнить полную выгрузку (очистить каталог)',
-				'Отмена'
-			);
-
-			if (action === 'Отмена' || action === undefined) {
-				return false;
-			}
-
-			if (action === 'Выполнить полную выгрузку (очистить каталог)') {
-				await this.clearDirectory(srcFullPath, entries);
-				return true;
-			}
-
-			return false;
-		} catch {
-			return true;
-		}
-	}
-
-	/**
-	 * Очищает каталог от всех файлов и подкаталогов
-	 * @param dirPath - Путь к каталогу
-	 * @param entries - Список записей в каталоге
-	 */
-	private async clearDirectory(dirPath: string, entries: string[]): Promise<void> {
-		for (const entry of entries) {
-			const entryPath = path.join(dirPath, entry);
-			const stat = await fs.stat(entryPath);
-			if (stat.isDirectory()) {
-				await fs.rm(entryPath, { recursive: true, force: true });
-			} else {
-				await fs.unlink(entryPath);
-			}
-		}
 	}
 
 	/**
@@ -315,7 +251,7 @@ export class ConfigurationCommands extends BaseCommand {
 			const content = await fs.readFile(lastUploadedCommitPath, 'utf-8');
 			currentSha = content.trim();
 		} catch {
-			// Файл не существует, это нормально - будет полная загрузка
+			// Файл не существует, будет полная загрузка
 		}
 
 		const shaInput = await vscode.window.showInputBox({
@@ -363,6 +299,7 @@ export class ConfigurationCommands extends BaseCommand {
 	 * Загружает объекты конфигурации из файлов по списку объектов в objlist.txt
 	 * Использует пакетный режим конфигуратора для загрузки объектов из исходников
 	 * @returns Промис, который разрешается после запуска команды
+	 * @throws Показывает ошибку, если файл objlist.txt не найден
 	 */
 	async loadFromFilesByList(): Promise<void> {
 		const workspaceRoot = this.ensureWorkspace();
