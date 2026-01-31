@@ -146,6 +146,9 @@ export function registerCommands(context: vscode.ExtensionContext, commands: Com
 		}),
 		vscode.commands.registerCommand('1c-platform-tools.dependencies.initializePackagedef', () => {
 			commands.dependencies.initializePackagedef();
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.dependencies.updateOpm', () => {
+			commands.dependencies.updateOpm();
 		})
 	];
 

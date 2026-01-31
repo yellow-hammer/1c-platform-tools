@@ -11,6 +11,7 @@ import {
 	getInstallDependenciesCommandName,
 	getRemoveDependenciesCommandName,
 	getInitializePackagedefCommandName,
+	getUpdateOpmCommandName,
 	getLoadConfigurationFromSrcCommandName,
 	getLoadConfigurationIncrementFromSrcCommandName,
 	getLoadConfigurationFromFilesByListCommandName,
@@ -530,6 +531,15 @@ export class PlatformTreeDataProvider implements vscode.TreeDataProvider<Platfor
 						{
 							command: '1c-platform-tools.dependencies.initializePackagedef',
 							title: getInitializePackagedefCommandName().title,
+						}
+					),
+					this.createTreeItem(
+						'📦 Обновить OPM',
+						TreeItemType.Task,
+						vscode.TreeItemCollapsibleState.None,
+						{
+							command: '1c-platform-tools.dependencies.updateOpm',
+							title: getUpdateOpmCommandName().title,
 						}
 					),
 					this.createTreeItem(

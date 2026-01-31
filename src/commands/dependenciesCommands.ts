@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import { BaseCommand } from './baseCommand';
-import { getInstallDependenciesCommandName } from '../commandNames';
+import { getInstallDependenciesCommandName, getUpdateOpmCommandName } from '../commandNames';
 
 /**
  * Команды для управления зависимостями проекта
@@ -61,6 +61,27 @@ export class DependenciesCommands extends BaseCommand {
 				vscode.window.showErrorMessage(`Не удалось удалить каталог oscript_modules: ${(error as Error).message}`);
 			}
 		}
+	}
+
+	/**
+	 * Обновляет OPM (OneScript Package Manager)
+	 *
+	 * Выполняет команду opm install opm в терминале для установки или обновления
+	 * менеджера пакетов OPM в проекте.
+	 *
+	 * @returns Промис, который разрешается после запуска команды
+	 */
+	async updateOpm(): Promise<void> {
+		const workspaceRoot = this.ensureWorkspace();
+		if (!workspaceRoot) {
+			return;
+		}
+
+		const commandName = getUpdateOpmCommandName();
+		this.vrunner.executeOpmInTerminal(['install', 'opm'], {
+			cwd: workspaceRoot,
+			name: commandName.title
+		});
 	}
 
 	/**
