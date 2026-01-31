@@ -119,6 +119,16 @@ export function getInitializePackagedefCommandName(): CommandNameAndTitle {
 }
 
 /**
+ * Получить название и заголовок для команды обновления OPM
+ */
+export function getUpdateOpmCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Обновить OPM',
+		title: 'Обновить OPM'
+	};
+}
+
+/**
  * Получить название и заголовок для команды сборки конфигурации
  */
 export function getBuildConfigurationCommandName(): CommandNameAndTitle {

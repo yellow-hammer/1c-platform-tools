@@ -223,6 +223,11 @@
         "category": "1C: Зависимости"
       },
       {
+        "command": "1c-platform-tools.dependencies.updateOpm",
+        "title": "Обновить OPM",
+        "category": "1C: Зависимости"
+      },
+      {
         "command": "1c-platform-tools.dependencies.install",
         "title": "Установить зависимости",
         "category": "1C: Зависимости"
