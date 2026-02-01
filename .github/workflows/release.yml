@@ -82,10 +82,10 @@ jobs:
           fi
           echo "Switching to branch: $BRANCH"
           git checkout $BRANCH
-          # Обновляем версию в package.json (игнорируем ошибку, если версия уже совпадает)
+          # Обновляем версию в package.json и package-lock.json (игнорируем ошибку, если версия уже совпадает)
           npm version ${{ steps.tag_version.outputs.version }} --no-git-tag-version || echo "Version already matches, skipping update"
           # Коммитим изменения версии, если они есть (формат не попадает в changelog)
-          git add package.json
+          git add package.json package-lock.json
           if git diff --staged --quiet; then
             echo "No changes to commit (version already matches)"
           else
