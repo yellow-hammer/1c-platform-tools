@@ -1,0 +1,38 @@
+---
+description: Стиль кода и стандарты TypeScript
+globs: **/*.ts
+alwaysApply: false
+---
+
+# Стиль кода
+
+## TypeScript и проект
+
+- **tsconfig**: strict mode, target ES2022, module Node16 (см. `tsconfig.json`)
+- Импорты Node: с префиксом `node:` (`node:path`, `node:fs/promises`)
+- ESLint: camelCase/PascalCase, фигурные скобки, строгое равенство
+- Требования: Node.js >=20 (package.json engines), VS Code ^1.103
+
+## Логирование и ошибки
+
+- Использовать **logger** из `src/logger.ts`: `logger.info()`, `logger.warn()`, `logger.error()`, `logger.debug()`
+- Не использовать `console.log` / `console.error` в продакшн-коде
+- Сообщения пользователю: `vscode.window.showErrorMessage()`, `showWarningMessage()`, `showInformationMessage()`
+
+## JSDoc
+
+- Публичные методы: описание, `@param`, `@returns`, при необходимости `@throws`
+- Асинхронные: в описании указать «Промис, который разрешается…»
+- **Не использовать `@example`** в JSDoc
+
+## Организация кода
+
+- Регистрация команд: один массив и один `push(...items)` (избегать множественных `push`)
+- Общую логику выносить в приватные методы
+- Ошибки: try/catch, понятные сообщения через UI
+
+## Документация в коде
+
+- Комментарии объясняют «почему», не «что»
+- Исключение: короткие комментарии-разделители секций в больших файлах
+- Перед коммитом удалять отладочный вывод и лишние комментарии

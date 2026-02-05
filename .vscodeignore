@@ -14,7 +14,7 @@ vsc-extension-quickstart.md
 **/.vscode-test.*
 **/.secretlintrc.json
 **/.cursorignore
-**/.cursorrules
+**/.cursor
 
 # Тесты
 **/*.test.js

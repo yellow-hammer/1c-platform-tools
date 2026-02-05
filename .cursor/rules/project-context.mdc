@@ -1,0 +1,33 @@
+---
+description: Контекст проекта 1C Platform Tools и архитектура расширения
+alwaysApply: true
+---
+
+# Контекст проекта
+
+Расширение VS Code на TypeScript для работы с проектами 1С. Использует VS Code API и **vrunner** (vanessa-runner) для выполнения команд 1С.
+
+## Архитектура
+
+- **Точка входа**: `src/extension.ts`, активация при наличии `packagedef` в корне workspace
+- **Команды**: префикс `1c-platform-tools.{domain}.{action}`, регистрация в `src/commands/commandRegistry.ts` (интерфейс Commands — без oscriptTasks; OscriptTasksCommands создаётся в extension.ts для динамических узлов дерева)
+- **TreeView**: `PlatformTreeDataProvider` в `src/treeViewProvider.ts`, структура дерева и избранного — `src/treeStructure.ts` (TREE_GROUPS). Динамические узлы: избранное, «Установить версию», «Задачи (oscript)», «Конфигурации запуска» — заполняются в treeViewProvider и extension.ts
+- **Базовый класс команд**: `BaseCommand` в `src/commands/baseCommand.ts`
+- **vrunner**: синглтон `VRunnerManager` в `src/vrunnerManager.ts`
+- **Структура проекта 1С**: `src/projectStructure.ts` (PROJECT_STRUCTURE для команды «Инициализировать структуру проекта», шаблон vanessa-bootstrap)
+- **Контекст после создания проекта**: `src/projectContext.ts` (setOnProjectCreated, notifyProjectCreated — полная активация после инициализации packagedef)
+- **Остальные модули**: `favorites.ts`, `commandNames.ts`, `constants.ts`, `logger.ts`, `src/utils/` (commandUtils, configVersionUtils, dateUtils)
+
+## Документация
+
+- **docs/README.md** — навигация по документации
+- **docs/vscode-api.md** — паттерны VS Code API
+- **docs/vrunner-patterns.md** — паттерны работы с vrunner
+- **docs/CI_CD_SETUP.md** — настройка CI/CD
+
+## Ключевые соглашения
+
+- Коммиты: [Conventional Commits](https://www.conventionalcommits.org/ru/v1.0.0/), сообщения на русском
+- Комментарии и сообщения пользователю: на русском
+- Типы: из `@types/vscode`, избегать `any`
+- Логирование: модуль `src/logger.ts` (`logger.info`, `logger.warn`, `logger.error`, `logger.debug`), не использовать `console.log`/`console.error` в продакшн-коде

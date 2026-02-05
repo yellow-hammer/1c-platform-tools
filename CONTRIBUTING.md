@@ -41,9 +41,9 @@
 
 ### Требования
 
-- **Node.js** версии 18.x или выше
+- **Node.js** версии 20.x или выше (соответствует `package.json` engines)
 - **npm** или **yarn**
-- **VS Code** версии 1.106.1 или выше (для тестирования)
+- **VS Code** версии 1.103 или выше (для тестирования)
 - **TypeScript** (устанавливается автоматически)
 - **Git** для работы с репозиторием
 
@@ -78,16 +78,23 @@
 ```txt
 1c-platform-tools/
 ├── src/
-│   ├── extension.ts          # Точка входа расширения
-│   ├── treeViewProvider.ts   # Провайдер данных для дерева команд
-│   ├── vrunnerManager.ts     # Менеджер для работы с vrunner
-│   ├── commandNames.ts       # Утилиты для названий команд
-│   └── commands/             # Команды, разделенные по доменам
-│       ├── infobaseCommands.ts
-│       ├── configurationCommands.ts
-│       ├── extensionsCommands.ts
-│       └── ...
-├── resources/                # Иконки и ресурсы
+│   ├── extension.ts          # Точка входа, регистрация команд и TreeView
+│   ├── treeViewProvider.ts   # Провайдер дерева команд (в т.ч. динамические узлы)
+│   ├── treeStructure.ts      # TREE_GROUPS — единый источник дерева и избранного
+│   ├── favorites.ts          # Избранное (globalState)
+│   ├── vrunnerManager.ts     # Менеджер vrunner (синглтон)
+│   ├── commandNames.ts       # Названия команд (get*CommandName)
+│   ├── projectStructure.ts   # PROJECT_STRUCTURE для «Инициализировать структуру проекта»
+│   ├── projectContext.ts    # Колбэк после создания packagedef
+│   ├── logger.ts, constants.ts
+│   ├── commands/
+│   │   ├── commandRegistry.ts  # registerCommands()
+│   │   ├── baseCommand.ts
+│   │   ├── infobaseCommands.ts
+│   │   ├── configurationCommands.ts
+│   │   └── ...
+│   └── utils/                # commandUtils, configVersionUtils, dateUtils
+├── resources/                # Иконки, шаблоны (packagedef.template)
 ├── src/test/                 # Тесты
 └── out/                      # Скомпилированный код (генерируется)
 ```
@@ -96,7 +103,7 @@
 
 - Используйте **TypeScript strict mode**, избегайте `any`
 - Используйте типы из `@types/vscode` для VS Code API
-- Следуйте стилю кода проекта (см. `.cursorrules`)
+- Следуйте стилю кода проекта (см. `.cursor/rules/` и документацию в `docs/`)
 - Команды организованы по **доменам** в `src/commands/`
 - Используйте `VRunnerManager.getInstance()` для работы с vrunner
 - Всегда проверяйте `vscode.workspace.workspaceFolders` перед работой с файлами

@@ -4,5 +4,5 @@
 **/out/**
 **/node_modules/**
 
-# Cursor файлы
-**/*.cursorrules
+# Cursor правила (каталог .cursor/rules/)
+.cursor/

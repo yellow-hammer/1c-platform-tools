@@ -1,0 +1,41 @@
+---
+description: Правила для команд и работы с vrunner
+globs: src/commands/**/*.ts
+alwaysApply: false
+---
+
+# Команды и vrunner
+
+## Структура команд
+
+Команды по доменам в `src/commands/`: `infobaseCommands`, `configurationCommands`, `extensionsCommands`, `externalFilesCommands`, `dependenciesCommands`, `runCommands`, `testCommands`, `setVersionCommands`, `workspaceTasksCommands`, `oscriptTasksCommands`. Все классы наследуют **BaseCommand** и используют `this.vrunner`.
+
+## Обязательные паттерны
+
+- **Проверка workspace**: всегда `this.ensureWorkspace()` (не вызывать напрямую `getWorkspaceRoot()`).
+- **Выполнение в терминале**: `this.vrunner.executeVRunnerInTerminal(args)`; для проверок — `this.vrunner.executeVRunner()`.
+- **ibcmd**: `this.addIbcmdIfNeeded(args)` для добавления `--ibcmd` при необходимости (настройка или Docker).
+- **Параметр ИБ**: `await this.vrunner.getIbConnectionParam()` → использовать как `...ibConnectionParam` в аргументах.
+
+## Пути (настройки `1c-platform-tools.paths.*`)
+
+- Исходники конфигурации: `this.vrunner.getCfPath()` (по умолчанию `src/cf`)
+- Результаты сборки: `this.vrunner.getOutPath()` (по умолчанию `build/out`)
+- Расширения: `getCfePath()` — `src/cfe`; обработки: `getEpfPath()` — `src/epf`; отчёты: `getErfPath()` — `src/erf`
+- vrunner: `this.vrunner.getVRunnerPath()` — `oscript_modules/bin/vrunner.bat` в workspace или `vrunner` из PATH
+
+## Docker и ibcmd
+
+- Docker: `await this.vrunner.shouldUseDocker()`; поддержка ibcmd: `this.vrunner.supportsIbcmd(args)`.
+- В Docker выполняются только команды, поддерживающие `--ibcmd`; иначе — предупреждение с отменой.
+- Нормализация аргументов для Docker: `this.vrunner.processCommandArgsForDocker()`; образ: `this.vrunner.getDockerImage()`.
+- Множественные команды: при Docker — каждая через `executeVRunnerInTerminal()`; без Docker — можно `executeCommandsInTerminal()` для последовательного запуска.
+
+## Именование методов
+
+- `compile()` — сборка из исходников в бинарник; `decompile()` — разбор в исходники
+- `loadFromSrc()` / `loadFromCf()` / `loadFromCfe()` — загрузка в ИБ; `dumpToSrc()` / `dumpToCf()` / `dumpToCfe()` — выгрузка из ИБ
+
+## Добавление новых команд
+
+Новую команду: добавить запись в соответствующую группу в `src/treeStructure.ts` (TREE_GROUPS), зарегистрировать в `package.json` → `contributes.commands` и в `src/commands/commandRegistry.ts` через `registerCommands()`. Названия — функции из `src/commandNames.ts` (get*CommandName()); для узлов «Конфигурации запуска» (env.json, launch.json) допускаются фиксированные title/treeLabel. Команды для динамических узлов (задачи oscript, конфигурации запуска) регистрируются в extension.ts.

@@ -39,11 +39,3 @@ docs/
 ├── vrunner-patterns.md    # Паттерны работы с vrunner
 └── CI_CD_SETUP.md        # Настройка CI/CD
 ```
-
-## Вопросы и предложения
-
-Если у вас есть вопросы или предложения по улучшению документации:
-
-- 💬 Создайте [обсуждение](https://github.com/yellow-hammer/1c-platform-tools/discussions)
-- 🐛 Создайте [issue](https://github.com/yellow-hammer/1c-platform-tools/issues)
-- 📧 Свяжитесь с мейнтейнерами: [i.karlo@outlook.com](mailto:i.karlo@outlook.com)
