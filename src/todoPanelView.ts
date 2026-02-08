@@ -44,8 +44,12 @@ function getIconForTag(tag: string): vscode.ThemeIcon {
 
 /** Склонение «пункт» для числа (1 пункт, 2 пункта, 5 пунктов). */
 function pluralPoints(count: number): string {
-	if (count === 1) return 'пункт';
-	if (count >= 2 && count <= 4) return 'пункта';
+	if (count === 1) {
+		return 'пункт';
+	}
+	if (count >= 2 && count <= 4) {
+		return 'пункта';
+	}
 	return 'пунктов';
 }
 
@@ -90,7 +94,9 @@ export class TodoPanelTreeDataProvider implements vscode.TreeDataProvider<TodoNo
 	}
 
 	private _updateViewTitle(): void {
-		if (this._treeView) this._treeView.title = 'Список дел';
+		if (this._treeView) {
+			this._treeView.title = 'Список дел';
+		}
 	}
 
 	async refresh(): Promise<void> {
@@ -110,8 +116,12 @@ export class TodoPanelTreeDataProvider implements vscode.TreeDataProvider<TodoNo
 	}
 
 	getChildren(node?: TodoNode): TodoNode[] {
-		if (!node || node.kind === 'root') return this._getRootChildren();
-		if (node.kind === 'file') return node.entries.map((e) => ({ kind: 'entry' as const, entry: e, tableMode: false }));
+		if (!node || node.kind === 'root') {
+			return this._getRootChildren();
+		}
+		if (node.kind === 'file') {
+			return node.entries.map((e) => ({ kind: 'entry' as const, entry: e, tableMode: false }));
+		}
 		return [];
 	}
 

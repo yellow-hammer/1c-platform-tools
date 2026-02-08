@@ -389,7 +389,9 @@ export async function activate(context: vscode.ExtensionContext) {
 				placeHolder: 'Выберите одну область, тип файла или один тег',
 				matchOnDescription: true,
 			});
-			if (chosen === undefined) return;
+			if (chosen === undefined) {
+				return;
+			}
 			if ('scope' in chosen && scopeSet.has(chosen.scope)) {
 				await todoPanelProvider.setFilterScope(chosen.scope);
 				await todoPanelProvider.setFilterTags(null);
@@ -439,9 +441,15 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Обновление списка TODO при сохранении релевантного файла (дебаунс 1.5 с)
 	const todoSaveDebounce = { timer: undefined as ReturnType<typeof setTimeout> | undefined };
 	const onTodoRelevantSave = vscode.workspace.onDidSaveTextDocument((doc) => {
-		if (!isProjectRef.current) return;
-		if (!/\.(bsl|os|md|feature)$/i.test(doc.uri.fsPath)) return;
-		if (todoSaveDebounce.timer) clearTimeout(todoSaveDebounce.timer);
+		if (!isProjectRef.current) {
+			return;
+		}
+		if (!/\.(bsl|os|md|feature)$/i.test(doc.uri.fsPath)) {
+			return;
+		}
+		if (todoSaveDebounce.timer) {
+			clearTimeout(todoSaveDebounce.timer);
+		}
 		todoSaveDebounce.timer = setTimeout(() => {
 			todoSaveDebounce.timer = undefined;
 			void todoPanelProvider.refresh();
@@ -571,7 +579,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		onTodoRelevantSave,
 		{
 			dispose: () => {
-				if (todoSaveDebounce.timer) clearTimeout(todoSaveDebounce.timer);
+				if (todoSaveDebounce.timer) {
+					clearTimeout(todoSaveDebounce.timer);
+				}
 			},
 		},
 		...commandDisposables
