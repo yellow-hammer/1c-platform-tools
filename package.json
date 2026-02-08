@@ -10,7 +10,7 @@
     "1с предприятие",
     "bsl"
   ],
-  "version": "0.3.1",
+  "version": "0.4.1",
   "publisher": "yellow-hammer",
   "repository": {
     "type": "git",
@@ -619,8 +619,16 @@
         },
         "1c-platform-tools.todo.tags": {
           "type": "array",
-          "items": { "type": "string" },
-          "default": ["TODO", "FIXME", "XXX", "HACK", "BUG"],
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "TODO",
+            "FIXME",
+            "XXX",
+            "HACK",
+            "BUG"
+          ],
           "description": "Теги для поиска в комментариях (регистр не учитывается)."
         }
       }
