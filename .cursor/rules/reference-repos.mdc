@@ -1,0 +1,19 @@
+---
+description: Репозитории для примеров реализации (VS Code API, расширения, TypeScript)
+alwaysApply: true
+---
+
+# Репозитории для примеров реализации
+
+При реализации фич, отладке API или поиске паттернов используй эти репозитории как ориентир:
+
+- **vscode-extension-samples** — https://github.com/microsoft/vscode-extension-samples  
+  Официальные примеры расширений VS Code (TreeView, Webview, команды, тесты и т.д.).
+
+- **TypeScript** — https://github.com/microsoft/TypeScript  
+  Эталонная кодовая база и типы для TypeScript.
+
+- **vscode** — https://github.com/microsoft/vscode  
+  Исходный код VS Code: API, типы, примеры использования расширений.
+
+При необходимости можно получать содержимое файлов из этих репозиториев (например, через GitHub MCP или поиск по коду) для копирования паттернов и проверки корректного использования API.
