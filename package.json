@@ -42,7 +42,8 @@
   ],
   "activationEvents": [
     "workspaceContains:packagedef",
-    "onCommand:1c-platform-tools.dependencies.initializePackagedef"
+    "onCommand:1c-platform-tools.dependencies.initializePackagedef",
+    "onCommand:1c-platform-tools.project.createFromWelcome"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -486,6 +487,24 @@
         "command": "1c-platform-tools.config.env.edit",
         "title": "Редактировать env.json",
         "category": "1C: Конфигурации запуска"
+      },
+      {
+        "command": "1c-platform-tools.project.createFromWelcome",
+        "title": "Создать проект 1С...",
+        "category": "1C: Зависимости"
+      },
+      {
+        "command": "1c-platform-tools.getStarted.open",
+        "title": "С чего начать?",
+        "category": "1C: Зависимости",
+        "icon": "$(lightbulb)"
+      }
+    ],
+    "viewsWelcome": [
+      {
+        "view": "explorer",
+        "contents": "Вы также можете [открыть папку проекта 1С](command:vscode.openFolder), или создать новый проект 1С, нажав кнопку ниже.\n[Создать проект 1С](command:1c-platform-tools.project.createFromWelcome)",
+        "when": "workspaceFolderCount == 0"
       }
     ],
     "menus": {
@@ -506,9 +525,14 @@
           "group": "navigation@3"
         },
         {
-          "command": "1c-platform-tools.refresh",
+          "command": "1c-platform-tools.getStarted.open",
           "when": "view == 1c-platform-tools",
           "group": "navigation@4"
+        },
+        {
+          "command": "1c-platform-tools.refresh",
+          "when": "view == 1c-platform-tools",
+          "group": "navigation@5"
         },
         {
           "command": "1c-platform-tools.todo.filterByScope",
@@ -533,6 +557,52 @@
       ],
       "editor/context": []
     },
+    "walkthroughs": [
+      {
+        "id": "1c-platform-tools.getStarted",
+        "title": "Начало работы с 1C Platform Tools",
+        "description": "Краткое руководство по настройке проекта и зависимостей для разработки на платформе 1С.",
+        "icon": "resources/1c-icon.png",
+        "steps": [
+          {
+            "id": "init-packagedef",
+            "title": "Инициализировать проект",
+            "description": "Создаёт файл packagedef в корне проекта — список зависимостей и настройки окружения (OneScript и др.). Откройте папку проекта в VS Code.\n\n[Выполнить](command:1c-platform-tools.dependencies.initializePackagedef)",
+            "media": { "markdown": "walkthrough/init-packagedef.md" }
+          },
+          {
+            "id": "init-structure",
+            "title": "Инициализировать структуру проекта",
+            "description": "Создаёт каталоги по шаблону vanessa-bootstrap: doc, src/cf, src/cfe, features, tests и др., с README в каждом.\n\n[Выполнить](command:1c-platform-tools.dependencies.initializeProjectStructure)",
+            "media": { "markdown": "walkthrough/init-structure.md" }
+          },
+          {
+            "id": "setup-git",
+            "title": "Настроить Git",
+            "description": "Задаёт имя и email для коммитов в репозитории текущего проекта (локально для этой папки).\n\n[Выполнить](command:1c-platform-tools.dependencies.setupGit)",
+            "media": { "markdown": "walkthrough/setup-git.md" }
+          },
+          {
+            "id": "install-oscript",
+            "title": "Установить OneScript",
+            "description": "Устанавливает OneScript (oscript) через OVM — нужен для vrunner, opm и скриптов.\n\n[Выполнить](command:1c-platform-tools.dependencies.installOscript)",
+            "media": { "markdown": "walkthrough/install-oscript.md" }
+          },
+          {
+            "id": "install-opm",
+            "title": "Установить OPM",
+            "description": "Устанавливает менеджер пакетов OPM для загрузки зависимостей из packagedef.\n\n[Выполнить](command:1c-platform-tools.dependencies.updateOpm)",
+            "media": { "markdown": "walkthrough/install-opm.md" }
+          },
+          {
+            "id": "install-deps",
+            "title": "Установить зависимости",
+            "description": "Выполняет opm install -l — ставит все зависимости из packagedef (в т.ч. vanessa-runner).\n\n[Выполнить](command:1c-platform-tools.dependencies.install)",
+            "media": { "markdown": "walkthrough/install-deps.md" }
+          }
+        ]
+      }
+    ],
     "configuration": {
       "title": "1C Platform Tools",
       "properties": {

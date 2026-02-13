@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="320" viewBox="0 0 600 320">
+  <rect width="600" height="320" fill="#252526" stroke="#3c3c3c" stroke-width="2" rx="4"/>
+  <text x="300" y="155" text-anchor="middle" fill="#858585" font-family="sans-serif" font-size="14">Screenshot</text>
+  <text x="300" y="175" text-anchor="middle" fill="#6e6e6e" font-family="sans-serif" font-size="12">(walkthrough/images/)</text>
+</svg>

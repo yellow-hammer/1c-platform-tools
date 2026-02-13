@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'node:path';
 import {
 	PlatformTreeDataProvider,
 	PlatformTreeItem,
@@ -27,6 +28,7 @@ import {
 	type PickableCommandGroup,
 } from './favorites';
 import { TodoPanelTreeDataProvider, type FilterScope } from './todoPanelView';
+import { registerGetStarted, openGetStartedWalkthrough, showGetStartedOnFirstRun } from './getStartedView';
 
 /** Элемент QuickPick для настройки избранного (с полями команды и группы) */
 type FavoritesSelectableItem = vscode.QuickPickItem & {
@@ -253,6 +255,25 @@ export async function activate(context: vscode.ExtensionContext) {
 		void vscode.commands.executeCommand('setContext', '1c-platform-tools.is1CProject', true);
 		treeDataProvider.refresh();
 	});
+
+	// Если проект только что создан через «Создать проект 1С» с опцией установки зависимостей — запускаем установку после открытия папки
+	const installAfterCreatePath = context.globalState.get<string>(DependenciesCommands.INSTALL_DEPS_AFTER_CREATE_KEY);
+	const wsRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+	if (installAfterCreatePath && wsRoot && path.normalize(installAfterCreatePath) === path.normalize(wsRoot)) {
+		void context.globalState.update(DependenciesCommands.INSTALL_DEPS_AFTER_CREATE_KEY, undefined);
+		setImmediate(() => void commands.dependencies.installDependencies());
+	}
+
+	// Панель «Начало работы» — открывается в редакторе по команде; при первом запуске после установки — показываем автоматически
+	registerGetStarted(context);
+	showGetStartedOnFirstRun(context);
+
+	// Открыть «Начало работы» в редакторе при первом открытии только что созданного проекта
+	const showGetStartedForPath = context.globalState.get<string>('1c-platform-tools.showGetStartedForPath');
+	if (showGetStartedForPath && wsRoot && path.normalize(showGetStartedForPath) === path.normalize(wsRoot)) {
+		void context.globalState.update('1c-platform-tools.showGetStartedForPath', undefined);
+		setImmediate(() => openGetStartedWalkthrough());
+	}
 
 	const refreshCommand = vscode.commands.registerCommand('1c-platform-tools.refresh', () => {
 		if (!isProjectRef.current) {
