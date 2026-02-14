@@ -96,6 +96,13 @@ export function registerProjectsCommands(
 		})
 	);
 
+	// Focus Projects view (переключение на контейнер «Проекты 1С»)
+	disposables.push(
+		vscode.commands.registerCommand('1c-platform-tools.projects.focusView', async () => {
+			await vscode.commands.executeCommand('workbench.view.extension.1c-platform-tools-projects-favorites');
+		})
+	);
+
 	// List Open
 	disposables.push(
 		vscode.commands.registerCommand('1c-platform-tools.projects.listOpen', async () => {
@@ -435,32 +442,22 @@ export function registerProjectsCommands(
 		})
 	);
 
-	// Sort by
-	const updateSortByContext = (): void => {
+	// Sort by (только Name и Path — Saved и Recent удалены из меню)
+	const updateSortByContext = async (): Promise<void> => {
 		const sortBy = config.get<string>('projects.sortList', 'Name');
-		void vscode.commands.executeCommand('setContext', '1c-platform-tools.projects.sortBy', sortBy);
+		await vscode.commands.executeCommand('setContext', '1c-platform-tools.projects.sortBy', sortBy);
 	};
-	updateSortByContext();
+	void updateSortByContext();
 
 	disposables.push(
-		vscode.commands.registerCommand('1c-platform-tools.projects._sortBySaved', async () => {
-			await config.update('projects.sortList', 'Saved', vscode.ConfigurationTarget.Global);
-			updateSortByContext();
-			providers.refreshStorage();
-		}),
 		vscode.commands.registerCommand('1c-platform-tools.projects._sortByName', async () => {
 			await config.update('projects.sortList', 'Name', vscode.ConfigurationTarget.Global);
-			updateSortByContext();
+			await updateSortByContext();
 			providers.refreshStorage();
 		}),
 		vscode.commands.registerCommand('1c-platform-tools.projects._sortByPath', async () => {
 			await config.update('projects.sortList', 'Path', vscode.ConfigurationTarget.Global);
-			updateSortByContext();
-			providers.refreshStorage();
-		}),
-		vscode.commands.registerCommand('1c-platform-tools.projects._sortByRecent', async () => {
-			await config.update('projects.sortList', 'Recent', vscode.ConfigurationTarget.Global);
-			updateSortByContext();
+			await updateSortByContext();
 			providers.refreshStorage();
 		})
 	);
@@ -469,7 +466,7 @@ export function registerProjectsCommands(
 	disposables.push(
 		vscode.workspace.onDidChangeConfiguration((e) => {
 			if (e.affectsConfiguration('1c-platform-tools.projects.sortList')) {
-				updateSortByContext();
+				void updateSortByContext();
 				providers.refreshStorage();
 			}
 		})

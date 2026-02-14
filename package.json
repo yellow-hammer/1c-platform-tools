@@ -532,12 +532,18 @@
         "category": "1C: Проекты",
         "icon": "$(edit)"
       },
-        {
-          "command": "1c-platform-tools.projects.listOpen",
-          "title": "Открыть список проектов 1С",
-          "category": "1C: Проекты",
-          "icon": "$(search)"
-        },
+      {
+        "command": "1c-platform-tools.projects.focusView",
+        "title": "Список проектов",
+        "category": "1C: Проекты",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "1c-platform-tools.projects.listOpen",
+        "title": "Открыть список проектов 1С",
+        "category": "1C: Проекты",
+        "icon": "$(search)"
+      },
       {
         "command": "1c-platform-tools.projects.listNewWindow",
         "title": "Открыть список проектов (новое окно)",
@@ -573,28 +579,16 @@
         "category": "1C: Проекты"
       },
       {
-        "command": "1c-platform-tools.projects._sortBySaved",
-        "title": "Сортировать по сохраненным",
-        "category": "1C: Проекты",
-        "enablement": "1c-platform-tools.projects.sortBy != Saved"
-      },
-      {
         "command": "1c-platform-tools.projects._sortByName",
         "title": "Сортировать по имени",
         "category": "1C: Проекты",
-        "enablement": "1c-platform-tools.projects.sortBy != Name"
+        "enablement": "1c-platform-tools.projects.sortBy != 'Name'"
       },
       {
         "command": "1c-platform-tools.projects._sortByPath",
         "title": "Сортировать по пути",
         "category": "1C: Проекты",
-        "enablement": "1c-platform-tools.projects.sortBy != Path"
-      },
-      {
-        "command": "1c-platform-tools.projects._sortByRecent",
-        "title": "Сортировать по недавнему",
-        "category": "1C: Проекты",
-        "enablement": "1c-platform-tools.projects.sortBy != Recent"
+        "enablement": "1c-platform-tools.projects.sortBy != 'Path'"
       },
       {
         "command": "1c-platform-tools.projects.addToWorkspace",
@@ -665,13 +659,7 @@
       },
       {
         "view": "1c-platform-tools-projects-favorites",
-        "contents": "Нет избранных проектов.\n[Сохранить текущий проект](command:1c-platform-tools.projects.saveProject)\n[Открыть папку](command:vscode.openFolder)",
-        "when": "workspaceFolderCount != 0"
-      },
-      {
-        "view": "1c-platform-tools-projects-favorites",
-        "contents": "Нет избранных проектов.\n[Открыть папку](command:vscode.openFolder)\n[Настроить папки поиска](command:workbench.action.openSettings)",
-        "when": "workspaceFolderCount == 0"
+        "contents": "Нет избранных проектов.\n[Открыть папку](command:vscode.openFolder)\n[Настроить папки поиска](command:workbench.action.openSettings)"
       }
     ],
     "menus": {
@@ -690,6 +678,11 @@
           "command": "1c-platform-tools.todo.showPanel",
           "when": "view == 1c-platform-tools",
           "group": "navigation@3"
+        },
+        {
+          "command": "1c-platform-tools.projects.focusView",
+          "when": "view == 1c-platform-tools",
+          "group": "navigation@3.5"
         },
         {
           "command": "1c-platform-tools.getStarted.open",
@@ -720,16 +713,6 @@
           "command": "1c-platform-tools.todo.refresh",
           "when": "view == 1c-platform-tools-todo-list",
           "group": "navigation@4"
-        },
-        {
-          "command": "1c-platform-tools.projects.saveProject",
-          "when": "view == 1c-platform-tools-projects-favorites",
-          "group": "navigation@10"
-        },
-        {
-          "command": "1c-platform-tools.projects.editProjects",
-          "when": "view == 1c-platform-tools-projects-favorites",
-          "group": "navigation@11"
         },
         {
           "command": "1c-platform-tools.projects._viewAsTags",
@@ -885,20 +868,12 @@
           "group": "1_view@2"
         },
         {
-          "command": "1c-platform-tools.projects._sortBySaved",
+          "command": "1c-platform-tools.projects._sortByName",
           "group": "2_sort@1"
         },
         {
-          "command": "1c-platform-tools.projects._sortByName",
-          "group": "2_sort@2"
-        },
-        {
           "command": "1c-platform-tools.projects._sortByPath",
-          "group": "2_sort@3"
-        },
-        {
-          "command": "1c-platform-tools.projects._sortByRecent",
-          "group": "2_sort@4"
+          "group": "2_sort@2"
         }
       ]
     },
