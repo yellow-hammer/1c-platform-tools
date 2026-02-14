@@ -41,17 +41,26 @@
     "Testing"
   ],
   "activationEvents": [
+    "onStartupFinished",
     "workspaceContains:packagedef",
     "onCommand:1c-platform-tools.dependencies.initializePackagedef",
-    "onCommand:1c-platform-tools.project.createFromWelcome"
+    "onCommand:1c-platform-tools.project.createFromWelcome",
+    "onView:1c-platform-tools-projects-favorites",
+    "onView:1c-platform-tools-projects-all",
+    "onCommand:1c-platform-tools.projects.listOpen"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
+          "id": "1c-platform-tools-projects",
+          "title": "Проекты 1С",
+          "icon": "resources/1c-icon.svg"
+        },
+        {
           "id": "1c-platform-tools",
-          "title": "1C Platform Tools",
+          "title": "Инструменты 1С",
           "icon": "resources/1c-icon.svg",
           "when": "1c-platform-tools.is1CProject == true"
         }
@@ -66,10 +75,22 @@
       ]
     },
     "views": {
+      "1c-platform-tools-projects": [
+        {
+          "id": "1c-platform-tools-projects-favorites",
+          "name": "Избранное",
+          "contextualTitle": "Избранное"
+        },
+        {
+          "id": "1c-platform-tools-projects-all",
+          "name": "Все проекты",
+          "contextualTitle": "Все проекты"
+        }
+      ],
       "1c-platform-tools": [
         {
           "id": "1c-platform-tools",
-          "name": "1C Platform Tools",
+          "name": "Команды",
           "when": "1c-platform-tools.is1CProject == true"
         }
       ],
@@ -498,12 +519,158 @@
         "title": "С чего начать?",
         "category": "1C: Зависимости",
         "icon": "$(lightbulb)"
+      },
+      {
+        "command": "1c-platform-tools.projects.saveProject",
+        "title": "Сохранить проект",
+        "category": "1C: Проекты",
+        "icon": "$(save)"
+      },
+      {
+        "command": "1c-platform-tools.projects.editProjects",
+        "title": "Редактировать проекты",
+        "category": "1C: Проекты",
+        "icon": "$(edit)"
+      },
+        {
+          "command": "1c-platform-tools.projects.listOpen",
+          "title": "Открыть список проектов 1С",
+          "category": "1C: Проекты",
+          "icon": "$(search)"
+        },
+      {
+        "command": "1c-platform-tools.projects.listNewWindow",
+        "title": "Открыть список проектов (новое окно)",
+        "category": "1C: Проекты",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "1c-platform-tools.projects.filterByTag",
+        "title": "Фильтр по тегам",
+        "category": "1C: Проекты",
+        "icon": "$(tag)"
+      },
+      {
+        "command": "1c-platform-tools.projects.refresh",
+        "title": "Обновить список",
+        "category": "1C: Проекты",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "1c-platform-tools.projects._open",
+        "title": "Открыть",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.projects._openInNewWindow",
+        "title": "Открыть в новом окне",
+        "category": "1C: Проекты",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "1c-platform-tools.projects.openSettings",
+        "title": "Настройки",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.projects._sortBySaved",
+        "title": "Сортировать по сохраненным",
+        "category": "1C: Проекты",
+        "enablement": "1c-platform-tools.projects.sortBy != Saved"
+      },
+      {
+        "command": "1c-platform-tools.projects._sortByName",
+        "title": "Сортировать по имени",
+        "category": "1C: Проекты",
+        "enablement": "1c-platform-tools.projects.sortBy != Name"
+      },
+      {
+        "command": "1c-platform-tools.projects._sortByPath",
+        "title": "Сортировать по пути",
+        "category": "1C: Проекты",
+        "enablement": "1c-platform-tools.projects.sortBy != Path"
+      },
+      {
+        "command": "1c-platform-tools.projects._sortByRecent",
+        "title": "Сортировать по недавнему",
+        "category": "1C: Проекты",
+        "enablement": "1c-platform-tools.projects.sortBy != Recent"
+      },
+      {
+        "command": "1c-platform-tools.projects.addToWorkspace",
+        "title": "Добавить в рабочую область",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.projects.revealInExplorer",
+        "title": "Показать в проводнике",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.projects.revealInFinder",
+        "title": "Показать в Finder",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.projects.revealInFileManager",
+        "title": "Показать в файловом менеджере",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.projects.deleteProject",
+        "title": "Удалить",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.projects.renameProject",
+        "title": "Переименовать",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.projects.editTags",
+        "title": "Изменить теги",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.projects.toggleEnabled",
+        "title": "Включить/скрыть",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.projects.addToFavorites",
+        "title": "Добавить в избранное",
+        "category": "1C: Проекты",
+        "icon": "$(star-add)"
+      },
+      {
+        "command": "1c-platform-tools.projects._viewAsList",
+        "title": "Просмотреть как список",
+        "category": "1C: Проекты",
+        "icon": "$(list-flat)",
+        "enablement": "!1c-platform-tools.projects.viewAsList"
+      },
+      {
+        "command": "1c-platform-tools.projects._viewAsTags",
+        "title": "Просмотреть как теги",
+        "category": "1C: Проекты",
+        "icon": "$(list-tree)",
+        "enablement": "1c-platform-tools.projects.viewAsList"
       }
     ],
     "viewsWelcome": [
       {
         "view": "explorer",
         "contents": "Вы также можете [открыть папку проекта 1С](command:vscode.openFolder), или создать новый проект 1С, нажав кнопку ниже.\n[Создать проект 1С](command:1c-platform-tools.project.createFromWelcome)",
+        "when": "workspaceFolderCount == 0"
+      },
+      {
+        "view": "1c-platform-tools-projects-favorites",
+        "contents": "Нет избранных проектов.\n[Сохранить текущий проект](command:1c-platform-tools.projects.saveProject)\n[Открыть папку](command:vscode.openFolder)",
+        "when": "workspaceFolderCount != 0"
+      },
+      {
+        "view": "1c-platform-tools-projects-favorites",
+        "contents": "Нет избранных проектов.\n[Открыть папку](command:vscode.openFolder)\n[Настроить папки поиска](command:workbench.action.openSettings)",
         "when": "workspaceFolderCount == 0"
       }
     ],
@@ -553,52 +720,232 @@
           "command": "1c-platform-tools.todo.refresh",
           "when": "view == 1c-platform-tools-todo-list",
           "group": "navigation@4"
+        },
+        {
+          "command": "1c-platform-tools.projects.saveProject",
+          "when": "view == 1c-platform-tools-projects-favorites",
+          "group": "navigation@10"
+        },
+        {
+          "command": "1c-platform-tools.projects.editProjects",
+          "when": "view == 1c-platform-tools-projects-favorites",
+          "group": "navigation@11"
+        },
+        {
+          "command": "1c-platform-tools.projects._viewAsTags",
+          "when": "view == 1c-platform-tools-projects-favorites && 1c-platform-tools.projects.viewAsList",
+          "group": "navigation@12"
+        },
+        {
+          "command": "1c-platform-tools.projects._viewAsList",
+          "when": "view == 1c-platform-tools-projects-favorites && !1c-platform-tools.projects.viewAsList",
+          "group": "navigation@13"
+        },
+        {
+          "command": "1c-platform-tools.projects.filterByTag",
+          "when": "view == 1c-platform-tools-projects-favorites",
+          "group": "navigation@14"
+        },
+        {
+          "command": "1c-platform-tools.projects.listOpen",
+          "when": "view == 1c-platform-tools-projects-favorites",
+          "group": "navigation@15"
+        },
+        {
+          "submenu": "1c-platform-tools.projects.viewAndSortMenu",
+          "when": "view == 1c-platform-tools-projects-favorites",
+          "group": "1_projectManager"
+        },
+        {
+          "command": "1c-platform-tools.projects.openSettings",
+          "when": "view == 1c-platform-tools-projects-favorites",
+          "group": "2_projectManager"
+        },
+        {
+          "command": "1c-platform-tools.projects.listOpen",
+          "when": "view == 1c-platform-tools-projects-all",
+          "group": "navigation@10"
+        },
+        {
+          "command": "1c-platform-tools.projects.refresh",
+          "when": "view == 1c-platform-tools-projects-all",
+          "group": "navigation@11"
+        },
+        {
+          "command": "1c-platform-tools.projects.openSettings",
+          "when": "view == 1c-platform-tools-projects-all",
+          "group": "2_projectManager"
         }
       ],
-      "editor/context": []
+      "view/item/context": [
+        {
+          "command": "1c-platform-tools.projects._openInNewWindow",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.projects._openInNewWindow",
+          "when": "view == 1c-platform-tools-projects-all && viewItem == ProjectNodeKind",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.projects._open",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.projects._openInNewWindow",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.projects._open",
+          "when": "view == 1c-platform-tools-projects-all && viewItem == ProjectNodeKind",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.projects._openInNewWindow",
+          "when": "view == 1c-platform-tools-projects-all && viewItem == ProjectNodeKind",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.projects.revealInExplorer",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind && isWindows",
+          "group": "navigation@2"
+        },
+        {
+          "command": "1c-platform-tools.projects.revealInFinder",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind && isMac",
+          "group": "navigation@2"
+        },
+        {
+          "command": "1c-platform-tools.projects.revealInFileManager",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind && isLinux",
+          "group": "navigation@2"
+        },
+        {
+          "command": "1c-platform-tools.projects.deleteProject",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind",
+          "group": "favorites"
+        },
+        {
+          "command": "1c-platform-tools.projects.renameProject",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind",
+          "group": "favorites"
+        },
+        {
+          "command": "1c-platform-tools.projects.editTags",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind",
+          "group": "favorites"
+        },
+        {
+          "command": "1c-platform-tools.projects.toggleEnabled",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind",
+          "group": "favorites"
+        },
+        {
+          "command": "1c-platform-tools.projects.addToWorkspace",
+          "when": "view == 1c-platform-tools-projects-favorites && viewItem == ProjectNodeKind",
+          "group": "workspace"
+        },
+        {
+          "command": "1c-platform-tools.projects.revealInExplorer",
+          "when": "view == 1c-platform-tools-projects-all && viewItem == ProjectNodeKind && isWindows",
+          "group": "navigation@2"
+        },
+        {
+          "command": "1c-platform-tools.projects.revealInFinder",
+          "when": "view == 1c-platform-tools-projects-all && viewItem == ProjectNodeKind && isMac",
+          "group": "navigation@2"
+        },
+        {
+          "command": "1c-platform-tools.projects.revealInFileManager",
+          "when": "view == 1c-platform-tools-projects-all && viewItem == ProjectNodeKind && isLinux",
+          "group": "navigation@2"
+        },
+        {
+          "command": "1c-platform-tools.projects.addToWorkspace",
+          "when": "view == 1c-platform-tools-projects-all && viewItem == ProjectNodeKind",
+          "group": "workspace"
+        },
+        {
+          "command": "1c-platform-tools.projects.addToFavorites",
+          "when": "view == 1c-platform-tools-projects-all && viewItem == ProjectNodeKind",
+          "group": "workspace"
+        }
+      ],
+      "editor/context": [],
+      "1c-platform-tools.projects.viewAndSortMenu": [
+        {
+          "command": "1c-platform-tools.projects._viewAsList",
+          "group": "1_view@1"
+        },
+        {
+          "command": "1c-platform-tools.projects._viewAsTags",
+          "group": "1_view@2"
+        },
+        {
+          "command": "1c-platform-tools.projects._sortBySaved",
+          "group": "2_sort@1"
+        },
+        {
+          "command": "1c-platform-tools.projects._sortByName",
+          "group": "2_sort@2"
+        },
+        {
+          "command": "1c-platform-tools.projects._sortByPath",
+          "group": "2_sort@3"
+        },
+        {
+          "command": "1c-platform-tools.projects._sortByRecent",
+          "group": "2_sort@4"
+        }
+      ]
     },
+    "submenus": [
+      {
+        "id": "1c-platform-tools.projects.viewAndSortMenu",
+        "label": "Просмотр и сортировка",
+        "icon": "$(list-flat)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "1c-platform-tools.projects.listOpen",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p"
+      }
+    ],
     "walkthroughs": [
       {
         "id": "1c-platform-tools.getStarted",
         "title": "Начало работы с 1C Platform Tools",
-        "description": "Краткое руководство по настройке проекта и зависимостей для разработки на платформе 1С.",
+        "description": "Четыре шага: создать или открыть проект, настроить поиск проектов, установить зависимости, освоить панель команд.",
         "icon": "resources/1c-icon.png",
         "steps": [
           {
-            "id": "init-packagedef",
-            "title": "Инициализировать проект",
-            "description": "Создаёт файл packagedef в корне проекта — список зависимостей и настройки окружения (OneScript и др.). Откройте папку проекта в VS Code.\n\n[Выполнить](command:1c-platform-tools.dependencies.initializePackagedef)",
-            "media": { "markdown": "walkthrough/init-packagedef.md" }
+            "id": "step1-create-open",
+            "title": "Создайте или откройте проект",
+            "description": "Откройте папку с проектом 1С (с файлом packagedef) или создайте новый проект.\n\n[Открыть папку](command:vscode.openFolder)\n[Создать проект 1С](command:1c-platform-tools.project.createFromWelcome)\n[Инициализировать packagedef](command:1c-platform-tools.dependencies.initializePackagedef)",
+            "media": { "markdown": "walkthrough/step1-create-open.md" }
           },
           {
-            "id": "init-structure",
-            "title": "Инициализировать структуру проекта",
-            "description": "Создаёт каталоги по шаблону vanessa-bootstrap: doc, src/cf, src/cfe, features, tests и др., с README в каждом.\n\n[Выполнить](command:1c-platform-tools.dependencies.initializeProjectStructure)",
-            "media": { "markdown": "walkthrough/init-structure.md" }
+            "id": "step2-auto-detect",
+            "title": "Автоматическое определение проектов",
+            "description": "Укажите папки для поиска проектов (baseFolders) и исключения (ignorePatterns). Панель «Проекты 1С» покажет все найденные проекты, избранное и теги.\n\n[Открыть настройки](command:workbench.action.openSettings)\n[Открыть список проектов](command:1c-platform-tools.projects.listOpen)",
+            "media": { "markdown": "walkthrough/step2-auto-detect.md" }
           },
           {
-            "id": "setup-git",
-            "title": "Настроить Git",
-            "description": "Задаёт имя и email для коммитов в репозитории текущего проекта (локально для этой папки).\n\n[Выполнить](command:1c-platform-tools.dependencies.setupGit)",
-            "media": { "markdown": "walkthrough/setup-git.md" }
+            "id": "step3-dependencies",
+            "title": "Установите зависимости",
+            "description": "Git, OneScript, OPM и зависимости из packagedef — нужны для скриптов, vrunner и тестов.\n\n[Настроить Git](command:1c-platform-tools.dependencies.setupGit)\n[Установить OneScript](command:1c-platform-tools.dependencies.installOscript)\n[Установить OPM](command:1c-platform-tools.dependencies.updateOpm)\n[Установить зависимости](command:1c-platform-tools.dependencies.install)\n[Инициализировать структуру](command:1c-platform-tools.dependencies.initializeProjectStructure)",
+            "media": { "markdown": "walkthrough/step3-dependencies.md" }
           },
           {
-            "id": "install-oscript",
-            "title": "Установить OneScript",
-            "description": "Устанавливает OneScript (oscript) через OVM — нужен для vrunner, opm и скриптов.\n\n[Выполнить](command:1c-platform-tools.dependencies.installOscript)",
-            "media": { "markdown": "walkthrough/install-oscript.md" }
-          },
-          {
-            "id": "install-opm",
-            "title": "Установить OPM",
-            "description": "Устанавливает менеджер пакетов OPM для загрузки зависимостей из packagedef.\n\n[Выполнить](command:1c-platform-tools.dependencies.updateOpm)",
-            "media": { "markdown": "walkthrough/install-opm.md" }
-          },
-          {
-            "id": "install-deps",
-            "title": "Установить зависимости",
-            "description": "Выполняет opm install -l — ставит все зависимости из packagedef (в т.ч. vanessa-runner).\n\n[Выполнить](command:1c-platform-tools.dependencies.install)",
-            "media": { "markdown": "walkthrough/install-deps.md" }
+            "id": "step4-commands-panel",
+            "title": "Панель с командами для работы с проектом",
+            "description": "После открытия проекта 1С на боковой панели появится «1C Platform Tools»: дерево проекта, избранное, список дел. Команды доступны из палитры (Ctrl+Shift+P) по запросу «1C».\n\n[С чего начать?](command:1c-platform-tools.getStarted.open)\n[Настроить избранное](command:1c-platform-tools.favorites.configure)",
+            "media": { "markdown": "walkthrough/step4-commands-panel.md" }
           }
         ]
       }
@@ -700,9 +1047,107 @@
             "BUG"
           ],
           "description": "Теги для поиска в комментариях (регистр не учитывается)."
+        },
+        "1c-platform-tools.projects.baseFolders": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Папки для поиска проектов 1С (каталоги с файлом packagedef). Абсолютные пути или пути относительно домашней папки."
+        },
+        "1c-platform-tools.projects.ignorePatterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["node_modules", ".git", "out", "oscript_modules", "vendor", "build"],
+          "description": "Имена каталогов или фрагменты пути для исключения из сканирования (например: node_modules, .git)."
+        },
+        "1c-platform-tools.projects.cacheBetweenSessions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Кэшировать список найденных проектов между сессиями (как в Project Manager). При открытии панели сразу показывается кэш; полное сканирование — по кнопке «Обновить»."
+        },
+        "1c-platform-tools.projects.maxDepthRecursion": {
+          "type": "number",
+          "default": -1,
+          "description": "Максимальная глубина вложенности при сканировании baseFolders (-1 — без ограничения). Помогает ускорить поиск в глубоких деревьях."
+        },
+        "1c-platform-tools.projects.projectsLocation": {
+          "type": "string",
+          "default": "",
+          "description": "Папка для хранения projects.json. Если указана — файл сохраняется туда (для синхронизации, как в Project Manager). Поддерживает ~ и $home."
+        },
+        "1c-platform-tools.projects.sortList": {
+          "type": "string",
+          "enum": ["Saved", "Name", "Path", "Recent"],
+          "default": "Name",
+          "description": "Сортировка списка избранных проектов."
+        },
+        "1c-platform-tools.projects.groupList": {
+          "type": "boolean",
+          "default": false,
+          "description": "Группировать список в QuickPick: Избранное и Все проекты."
+        },
+        "1c-platform-tools.projects.removeCurrentProjectFromList": {
+          "type": "boolean",
+          "default": true,
+          "description": "Убрать текущий проект из списка в QuickPick."
+        },
+        "1c-platform-tools.projects.filterOnFullPath": {
+          "type": "boolean",
+          "default": false,
+          "description": "Искать при вводе также по полному пути."
+        },
+        "1c-platform-tools.projects.showProjectNameInStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Показывать имя текущего проекта в статусной строке."
+        },
+        "1c-platform-tools.projects.openInNewWindowWhenClickingInStatusBar": {
+          "type": "boolean",
+          "default": false,
+          "description": "При клике на статусную строку открывать список в режиме «новое окно»."
+        },
+        "1c-platform-tools.projects.openInCurrentWindowIfEmpty": {
+          "type": "string",
+          "enum": ["always", "onlyUsingCommandPalette", "onlyUsingSideBar", "never"],
+          "default": "always",
+          "description": "Открывать в текущем окне, если оно пустое."
+        },
+        "1c-platform-tools.projects.confirmSwitchOnActiveWindow": {
+          "type": "string",
+          "enum": ["never", "onlyUsingCommandPalette", "onlyUsingSideBar", "always"],
+          "default": "never",
+          "description": "Подтверждение при переключении проекта в активном окне."
+        },
+        "1c-platform-tools.projects.tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["Личное", "Работа"],
+          "description": "Список тегов для организации проектов."
+        },
+        "1c-platform-tools.projects.tags.collapseItems": {
+          "type": "string",
+          "enum": ["alwaysExpanded", "alwaysCollapsed", "startExpanded", "startCollapsed"],
+          "default": "startExpanded",
+          "description": "Поведение групп тегов при отображении списком по тегам."
+        },
+        "1c-platform-tools.projects.showParentFolderInfoOnDuplicates": {
+          "type": "boolean",
+          "default": false,
+          "description": "Показывать родительскую папку при одинаковых именах проектов."
         }
       }
-    }
+    },
+    "colors": [
+      {
+        "id": "1cplatformtools.projects.currentProjectHighlightForeground",
+        "description": "Цвет подсветки текущего проекта в панели «Проекты 1С».",
+        "defaults": {
+          "light": "#2fb15b",
+          "dark": "#2fb15b",
+          "highContrast": "#2fb15b"
+        }
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -716,11 +1161,17 @@
   "overrides": {
     "diff": "^8.0.3"
   },
+  "dependencies": {
+    "glob": "^10.4.5",
+    "minimatch": "^3.0.4",
+    "walker": "^1.0.7"
+  },
   "devDependencies": {
     "@types/node": "22.x",
     "@types/vscode": "^1.103.0",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
+    "@types/minimatch": "^3.0.5",
     "@vscode/vsce": "^3.7.1",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",

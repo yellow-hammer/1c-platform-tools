@@ -1,5 +1,6 @@
-import * as vscode from 'vscode';
+import * as fs from 'node:fs';
 import * as path from 'node:path';
+import * as vscode from 'vscode';
 import {
 	PlatformTreeDataProvider,
 	PlatformTreeItem,
@@ -29,6 +30,16 @@ import {
 } from './favorites';
 import { TodoPanelTreeDataProvider, type FilterScope } from './todoPanelView';
 import { registerGetStarted, openGetStartedWalkthrough, showGetStartedOnFirstRun } from './getStartedView';
+import { OneCLocator } from './oneCLocator';
+import {
+	ProjectStorage,
+	ProjectsStack,
+	ProjectsProviders,
+	getProjectsFilePath,
+	showStatusBar,
+} from './projects';
+import { registerProjectsDecoration } from './projects/decoration';
+import { registerProjectsCommands } from './projects/commands';
 
 /** Элемент QuickPick для настройки избранного (с полями команды и группы) */
 type FavoritesSelectableItem = vscode.QuickPickItem & {
@@ -267,6 +278,64 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Панель «Начало работы» — открывается в редакторе по команде; при первом запуске после установки — показываем автоматически
 	registerGetStarted(context);
 	showGetStartedOnFirstRun(context);
+
+	// Панель «Проекты 1С» — по образцу Project Manager: избранное (projects.json) + автообнаружение
+	const oneCLocator = new OneCLocator(context);
+	const config = vscode.workspace.getConfiguration('1c-platform-tools');
+	const projectsLocation = config.get<string>('projects.projectsLocation', '');
+	const projectFilePath = getProjectsFilePath(projectsLocation, context);
+	const projectStorage = new ProjectStorage(projectFilePath);
+	const loadError = projectStorage.load();
+	if (loadError) {
+		void vscode.window.showErrorMessage(
+			'Ошибка загрузки projects.json',
+			{ modal: true, detail: loadError },
+			{ title: 'Открыть файл' }
+		).then((choice) => {
+			if (choice?.title === 'Открыть файл') {
+				void vscode.commands.executeCommand('1c-platform-tools.projects.editProjects');
+			}
+		});
+	}
+	const stack = new ProjectsStack(
+		(k) => context.globalState.get(k),
+		(k, v) => context.globalState.update(k, v)
+	);
+	const providers = new ProjectsProviders(context, projectStorage, oneCLocator, stack);
+	await providers.showTreeViews();
+	registerProjectsDecoration(context);
+	showStatusBar(projectStorage, oneCLocator);
+	context.subscriptions.push(
+		vscode.workspace.onDidChangeWorkspaceFolders(() => {
+			showStatusBar(projectStorage, oneCLocator);
+		})
+	);
+	const projectsCommandDisposables = registerProjectsCommands(
+		context,
+		projectStorage,
+		oneCLocator,
+		providers,
+		stack
+	);
+	try {
+		fs.watch(path.dirname(projectFilePath), (_, filename) => {
+			if (filename === 'projects.json') {
+				projectStorage.load();
+				providers.refreshStorage();
+			}
+		});
+	} catch {
+		// Папка может не существовать
+	}
+	const onProjectsConfigChange = vscode.workspace.onDidChangeConfiguration((e) => {
+		if (e.affectsConfiguration('1c-platform-tools.projects')) {
+			void oneCLocator.refreshProjects(true).then(() => {
+				providers.refreshAll();
+				providers.updateStorageTitle();
+				providers.updateAutodetectTitle();
+			});
+		}
+	});
 
 	// Открыть «Начало работы» в редакторе при первом открытии только что созданного проекта
 	const showGetStartedForPath = context.globalState.get<string>('1c-platform-tools.showGetStartedForPath');
@@ -578,6 +647,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		treeView,
+		...projectsCommandDisposables,
+		onProjectsConfigChange,
 		refreshCommand,
 		settingsCommand,
 		favoritesConfigureCommand,
