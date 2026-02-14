@@ -1,5 +1,6 @@
 /**
  * Регистрация команд модуля «Проекты 1С».
+ * @module projects/commands
  */
 
 import * as fs from 'node:fs';
@@ -21,6 +22,15 @@ import {
 	InvocationSource,
 } from './index';
 
+/**
+ * Регистрирует команды панели «Проекты 1С».
+ * @param context — контекст расширения
+ * @param projectStorage — хранилище избранного
+ * @param locator — локатор проектов (autodetect)
+ * @param providers — провайдеры TreeView
+ * @param stack — стек недавних проектов
+ * @returns массив disposable для отписки
+ */
 export function registerProjectsCommands(
 	context: vscode.ExtensionContext,
 	projectStorage: ProjectStorage,

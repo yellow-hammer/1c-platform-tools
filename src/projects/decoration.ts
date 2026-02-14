@@ -10,6 +10,10 @@ export const VIEW_SCHEME = '1c-platform-tools-projects';
 let currentProjectPath: string | undefined;
 let decorationEmitter: vscode.EventEmitter<vscode.Uri | vscode.Uri[]> | undefined;
 
+/**
+ * Устанавливает путь текущего проекта для подсветки в TreeView.
+ * @param rootPath — fsPath корня проекта или undefined
+ */
 export function setCurrentProjectPath(rootPath: string | undefined): void {
 	const prev = currentProjectPath;
 	currentProjectPath = rootPath ? path.normalize(rootPath) : undefined;
@@ -21,6 +25,10 @@ export function setCurrentProjectPath(rootPath: string | undefined): void {
 	}
 }
 
+/**
+ * Регистрирует провайдер подсветки текущего проекта в панели «Проекты 1С».
+ * @param context — контекст расширения
+ */
 export function registerProjectsDecoration(context: vscode.ExtensionContext): void {
 	decorationEmitter = new vscode.EventEmitter<vscode.Uri | vscode.Uri[]>();
 	const provider: vscode.FileDecorationProvider = {
@@ -29,7 +37,6 @@ export function registerProjectsDecoration(context: vscode.ExtensionContext): vo
 			if (uri.scheme !== VIEW_SCHEME || !currentProjectPath) {
 				return undefined;
 			}
-			// uri.fsPath — нативный путь; uri.path может использовать / на Windows
 			const uriPath = path.normalize(uri.fsPath ?? uri.path);
 			if (uriPath.toLowerCase() !== currentProjectPath.toLowerCase()) {
 				return undefined;

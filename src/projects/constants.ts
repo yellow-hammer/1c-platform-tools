@@ -13,6 +13,3 @@ export enum InvocationSource {
 
 /** Специальный тег для проектов без тегов. */
 export const UNTAGGED_LABEL = '(без тегов)';
-
-/** @deprecated Используйте UNTAGGED_LABEL. */
-export const NO_TAGS_DEFINED = UNTAGGED_LABEL;

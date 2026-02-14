@@ -784,12 +784,12 @@
         {
           "submenu": "1c-platform-tools.projects.viewAndSortMenu",
           "when": "view == 1c-platform-tools-projects-favorites",
-          "group": "1_projectManager"
+          "group": "1_projects"
         },
         {
           "command": "1c-platform-tools.projects.openSettings",
           "when": "view == 1c-platform-tools-projects-favorites",
-          "group": "2_projectManager"
+          "group": "2_projects"
         },
         {
           "command": "1c-platform-tools.projects.openSettings",
@@ -1102,7 +1102,7 @@
           "1c-platform-tools.projects.cacheBetweenSessions": {
             "type": "boolean",
             "default": true,
-            "description": "Кэшировать список найденных проектов между сессиями (как в Project Manager). При открытии панели сразу показывается кэш; полное сканирование — по кнопке «Обновить»."
+            "description": "Кэшировать список найденных проектов между сессиями. При открытии панели сразу показывается кэш; полное сканирование — по кнопке «Обновить»."
           },
           "1c-platform-tools.projects.maxDepthRecursion": {
             "type": "number",
@@ -1113,7 +1113,7 @@
           "1c-platform-tools.projects.projectsLocation": {
             "type": "string",
             "default": "",
-            "description": "Папка для хранения projects.json. Если указана — файл сохраняется туда (для синхронизации, как в Project Manager). Поддерживает ~ и $home."
+            "description": "Папка для хранения projects.json. Если указана — файл сохраняется туда (для синхронизации между устройствами). Поддерживает ~ и $home."
           },
           "1c-platform-tools.projects.sortList": {
             "type": "string",

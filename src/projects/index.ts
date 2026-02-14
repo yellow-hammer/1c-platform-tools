@@ -11,6 +11,6 @@ export { pickProjects, openPickedProject, pickFavoritesToConfigure, canSwitchOnA
 export { pickTags } from './tagsPicker';
 export { showStatusBar, updateStatusBar } from './statusBar';
 export { getProjectsFilePath, expandHomePath, normalizePath } from './pathUtils';
-export { NO_TAGS_DEFINED, InvocationSource } from './constants';
+export { InvocationSource } from './constants';
 export type { Project } from './project';
 export type { PickedProject, PickedResult } from './projectsPicker';

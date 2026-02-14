@@ -10,6 +10,12 @@ import { setCurrentProjectPath } from './decoration';
 
 let statusItem: vscode.StatusBarItem | undefined;
 
+/**
+ * Показывает текущий проект в статусной строке и обновляет подсветку в сайдбаре.
+ * @param storage — хранилище избранного
+ * @param locator — локатор автообнаруженных проектов
+ * @param projectName — имя проекта (если известно)
+ */
 export function showStatusBar(
 	storage: ProjectStorage,
 	locator: OneCLocator,
@@ -60,6 +66,12 @@ export function showStatusBar(
 	statusItem.show();
 }
 
+/**
+ * Обновляет текст в статусной строке при переименовании проекта.
+ * @param oldName — предыдущее имя
+ * @param _oldPath — предыдущий путь (не используется)
+ * @param newName — новое имя
+ */
 export function updateStatusBar(oldName: string, _oldPath: string, newName: string): void {
 	if (statusItem?.text === `$(folder) ${oldName}`) {
 		statusItem.text = `$(folder) ${newName}`;

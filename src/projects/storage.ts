@@ -179,7 +179,6 @@ export class ProjectStorage {
 		fs.writeFileSync(this.filePath, JSON.stringify(this.items, null, '\t'), 'utf8');
 	}
 
-	// Обратная совместимость (обновить вызовы позже)
 	push(name: string, rootPath: string): void {
 		this.add(name, rootPath);
 	}

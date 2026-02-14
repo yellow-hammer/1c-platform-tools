@@ -59,7 +59,6 @@ export class ProjectsStack {
 		return this.recent[index] ?? '';
 	}
 
-	// Обратная совместимость
 	push(name: string): void {
 		this.addRecent(name);
 	}

@@ -109,7 +109,7 @@ export class StorageProvider implements vscode.TreeDataProvider<ProjectNode | Ta
 			const tags = this.store.allTags();
 			const untaggedCount = this.store.byTag('').length;
 			if (tags.length === 0 && untaggedCount === 0) {
-				// Нет тегов — показываем как список
+				/* без тегов — ниже возвращается плоский список */
 			} else {
 				const tagNodes: TagNode[] = tags.map(
 					(t) => new TagNode(t, StorageProvider.getTagCollapsibleState(this.context, t, collapseMode))
