@@ -188,6 +188,28 @@ const NOT_1C_PROJECT_MESSAGE =
  * @param context - Контекст расширения VS Code
  */
 export async function activate(context: vscode.ExtensionContext) {
+	// Панель «Проекты 1С» — сразу создаём TreeViews, чтобы избежать «Отсутствует поставщик данных»
+	const oneCLocator = new OneCLocator(context);
+	const projectsConfig = vscode.workspace.getConfiguration('1c-platform-tools');
+	const projectsLocation = projectsConfig.get<string>('projects.projectsLocation', '');
+	const projectFilePath = getProjectsFilePath(projectsLocation, context);
+	const projectStorage = new ProjectStorage(projectFilePath);
+	const loadError = projectStorage.load();
+	if (loadError) {
+		void vscode.window
+			.showErrorMessage('Ошибка загрузки projects.json', { modal: true, detail: loadError }, { title: 'Открыть файл' })
+			.then((choice) => {
+				if (choice?.title === 'Открыть файл') {
+					void vscode.commands.executeCommand('1c-platform-tools.projects.editProjects');
+				}
+			});
+	}
+	const stack = new ProjectsStack(
+		(k) => context.globalState.get(k),
+		(k, v) => context.globalState.update(k, v)
+	);
+	const providers = new ProjectsProviders(context, projectStorage, oneCLocator, stack);
+
 	// Панель «Список дел» — TreeView с TreeDataProvider, фильтр через команду
 	const todoPanelProvider = new TodoPanelTreeDataProvider(context);
 	const todoTreeView = vscode.window.createTreeView('1c-platform-tools-todo-list', {
@@ -196,8 +218,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	});
 	todoPanelProvider.setTreeView(todoTreeView);
 	context.subscriptions.push(todoTreeView);
-
-	// Сканирование TODO — ленивый старт при первом открытии панели или по кнопке «Обновить» (без запуска при activate)
 
 	await vscode.commands.executeCommand('setContext', '1c-platform-tools.is1CProject', false);
 
@@ -279,29 +299,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	registerGetStarted(context);
 	showGetStartedOnFirstRun(context);
 
-	// Панель «Проекты 1С»: избранное (projects.json) + автообнаружение
-	const oneCLocator = new OneCLocator(context);
-	const config = vscode.workspace.getConfiguration('1c-platform-tools');
-	const projectsLocation = config.get<string>('projects.projectsLocation', '');
-	const projectFilePath = getProjectsFilePath(projectsLocation, context);
-	const projectStorage = new ProjectStorage(projectFilePath);
-	const loadError = projectStorage.load();
-	if (loadError) {
-		void vscode.window.showErrorMessage(
-			'Ошибка загрузки projects.json',
-			{ modal: true, detail: loadError },
-			{ title: 'Открыть файл' }
-		).then((choice) => {
-			if (choice?.title === 'Открыть файл') {
-				void vscode.commands.executeCommand('1c-platform-tools.projects.editProjects');
-			}
-		});
-	}
-	const stack = new ProjectsStack(
-		(k) => context.globalState.get(k),
-		(k, v) => context.globalState.update(k, v)
-	);
-	const providers = new ProjectsProviders(context, projectStorage, oneCLocator, stack);
+	// Панель «Проекты 1С»: загрузка данных и подписки
 	await providers.showTreeViews();
 	registerProjectsDecoration(context);
 	showStatusBar(projectStorage, oneCLocator);
@@ -354,9 +352,33 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Дерево обновлено');
 	});
 
-	const settingsCommand = vscode.commands.registerCommand('1c-platform-tools.settings', () => {
-		vscode.commands.executeCommand('workbench.action.openSettings', '@ext:yellow-hammer.1c-platform-tools');
+	const SETTINGS_EXT = '@ext:yellow-hammer.1c-platform-tools';
+	const settingsCommand = vscode.commands.registerCommand('1c-platform-tools.settings', async () => {
+		const choice = await vscode.window.showQuickPick(
+			[
+				{ label: '$(folder-opened) Проекты', detail: 'baseFolders, исключения, избранное', filter: '1c-platform-tools.projects' },
+				{ label: '$(tools) Инструменты', detail: 'пути, vrunner, allure, docker', filter: '1c-platform-tools.paths 1c-platform-tools.vrunner' },
+				{ label: '$(settings-gear) Общее', detail: 'все настройки расширения', filter: '' },
+			],
+			{ placeHolder: 'Раздел настроек' }
+		);
+		let query = '';
+		if (choice) {
+			query = choice.filter ? `${SETTINGS_EXT} ${choice.filter}` : SETTINGS_EXT;
+		}
+		if (query) {
+			await vscode.commands.executeCommand('workbench.action.openSettings', query);
+		}
 	});
+	vscode.commands.registerCommand('1c-platform-tools.settings.openProjects', () =>
+		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.projects`)
+	);
+	vscode.commands.registerCommand('1c-platform-tools.settings.openTools', () =>
+		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.paths 1c-platform-tools.vrunner`)
+	);
+	vscode.commands.registerCommand('1c-platform-tools.settings.openGeneral', () =>
+		vscode.commands.executeCommand('workbench.action.openSettings', SETTINGS_EXT)
+	);
 
 	const launchViewCommand = vscode.commands.registerCommand('1c-platform-tools.launch.view', () => {
 		if (!isProjectRef.current) {
@@ -429,11 +451,34 @@ export async function activate(context: vscode.ExtensionContext) {
 		await todoPanelProvider.refresh();
 	});
 
+	const todoGroupByHierarchyKey = '1c-platform-tools.todo.groupByHierarchy';
+	const updateTodoGroupByContext = (): void => {
+		const groupBy = todoPanelProvider.getGroupByFile();
+		void vscode.commands.executeCommand('setContext', todoGroupByHierarchyKey, groupBy);
+	};
+
 	const todoToggleGroupByCommand = vscode.commands.registerCommand(
 		'1c-platform-tools.todo.toggleGroupBy',
 		async () => {
 			const next = !todoPanelProvider.getGroupByFile();
 			await todoPanelProvider.setGroupByFile(next);
+			updateTodoGroupByContext();
+		}
+	);
+
+	const todoViewAsListCommand = vscode.commands.registerCommand(
+		'1c-platform-tools.todo._viewAsList',
+		async () => {
+			await todoPanelProvider.setGroupByFile(false);
+			updateTodoGroupByContext();
+		}
+	);
+
+	const todoViewAsHierarchyCommand = vscode.commands.registerCommand(
+		'1c-platform-tools.todo._viewAsHierarchy',
+		async () => {
+			await todoPanelProvider.setGroupByFile(true);
+			updateTodoGroupByContext();
 		}
 	);
 
@@ -662,9 +707,12 @@ export async function activate(context: vscode.ExtensionContext) {
 		todoShowPanelCommand,
 		todoRefreshCommand,
 		todoToggleGroupByCommand,
+		todoViewAsListCommand,
+		todoViewAsHierarchyCommand,
 		todoFilterByTagCommand,
 		todoFilterByScopeCommand,
 		todoClearFilterCommand,
+		todoPanelProvider.onDidChangeTreeData(updateTodoGroupByContext),
 		launchEditConfigurationsCommand,
 		onWorkspaceTasksSave,
 		onTodoActiveEditorChange,

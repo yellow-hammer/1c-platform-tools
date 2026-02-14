@@ -28,12 +28,12 @@ export class ProjectStorage {
 
 	rename(before: string, after: string): void {
 		const p = this.find(before);
-		if (p) p.name = after;
+		if (p) {p.name = after;}
 	}
 
 	setTags(name: string, tags: string[]): void {
 		const p = this.find(name);
-		if (p) p.tags = tags;
+		if (p) {p.tags = tags;}
 	}
 
 	setEnabled(name: string, enabled: boolean): boolean | undefined {
@@ -60,7 +60,7 @@ export class ProjectStorage {
 
 	updatePath(name: string, newPath: string): void {
 		const p = this.find(name);
-		if (p) p.rootPath = newPath;
+		if (p) {p.rootPath = newPath;}
 	}
 
 	hasName(name: string): boolean {
@@ -87,11 +87,11 @@ export class ProjectStorage {
 	}
 
 	load(): string {
-		if (!fs.existsSync(this.filePath)) return '';
+		if (!fs.existsSync(this.filePath)) {return '';}
 		try {
 			const raw = fs.readFileSync(this.filePath, 'utf8');
 			const data = JSON.parse(raw) as unknown[];
-			if (!Array.isArray(data) || data.length === 0) return '';
+			if (!Array.isArray(data) || data.length === 0) {return '';}
 			const first = data[0];
 			if (first && typeof first === 'object' && 'label' in (first as object)) {
 				for (const el of data as Array<{ label: string; description: string }>) {
@@ -148,7 +148,7 @@ export class ProjectStorage {
 
 	/** Проекты, удовлетворяющие фильтру тегов (или все, если фильтр пуст). */
 	byTags(activeTags: string[]): FavoriteEntry[] {
-		if (activeTags.length === 0) return this.entries();
+		if (activeTags.length === 0) {return this.entries();}
 		const filtered = this.items.filter(
 			(p) =>
 				p.enabled &&

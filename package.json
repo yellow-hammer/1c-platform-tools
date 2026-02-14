@@ -116,6 +116,21 @@
         "category": "1C: Дерево"
       },
       {
+        "command": "1c-platform-tools.settings.openProjects",
+        "title": "Настройки проектов",
+        "category": "1C: Проекты"
+      },
+      {
+        "command": "1c-platform-tools.settings.openTools",
+        "title": "Настройки инструментов",
+        "category": "1C: Дерево"
+      },
+      {
+        "command": "1c-platform-tools.settings.openGeneral",
+        "title": "Общие настройки",
+        "category": "1C: Дерево"
+      },
+      {
         "command": "1c-platform-tools.favorites.configure",
         "title": "Настроить избранное",
         "icon": "$(star-full)",
@@ -487,6 +502,20 @@
         "icon": "$(list-tree)"
       },
       {
+        "command": "1c-platform-tools.todo._viewAsList",
+        "title": "Просмотреть списком",
+        "category": "1C: Список дел",
+        "icon": "$(list-flat)",
+        "enablement": "1c-platform-tools.todo.groupByHierarchy"
+      },
+      {
+        "command": "1c-platform-tools.todo._viewAsHierarchy",
+        "title": "Группировать по файлам",
+        "category": "1C: Список дел",
+        "icon": "$(list-tree)",
+        "enablement": "!1c-platform-tools.todo.groupByHierarchy"
+      },
+      {
         "command": "1c-platform-tools.todo.filterByTag",
         "title": "Фильтр по тегу",
         "category": "1C: Список дел",
@@ -533,10 +562,10 @@
         "icon": "$(edit)"
       },
       {
-        "command": "1c-platform-tools.projects.focusView",
-        "title": "Список проектов",
+        "command": "1c-platform-tools.projects.configureFavorites",
+        "title": "Настроить избранное",
         "category": "1C: Проекты",
-        "icon": "$(folder-opened)"
+        "icon": "$(star-full)"
       },
       {
         "command": "1c-platform-tools.projects.listOpen",
@@ -582,13 +611,13 @@
         "command": "1c-platform-tools.projects._sortByName",
         "title": "Сортировать по имени",
         "category": "1C: Проекты",
-        "enablement": "1c-platform-tools.projects.sortBy != 'Name'"
+        "enablement": "config.1c-platform-tools.projects.sortList != 'Name'"
       },
       {
         "command": "1c-platform-tools.projects._sortByPath",
         "title": "Сортировать по пути",
         "category": "1C: Проекты",
-        "enablement": "1c-platform-tools.projects.sortBy != 'Path'"
+        "enablement": "config.1c-platform-tools.projects.sortList != 'Path'"
       },
       {
         "command": "1c-platform-tools.projects.addToWorkspace",
@@ -659,7 +688,7 @@
       },
       {
         "view": "1c-platform-tools-projects-favorites",
-        "contents": "Нет избранных проектов.\n[Открыть папку](command:vscode.openFolder)\n[Настроить папки поиска](command:workbench.action.openSettings)"
+        "contents": "Нет избранных проектов.\n[Открыть папку](command:vscode.openFolder)\n[Настройка](command:1c-platform-tools.projects.openSettings)"
       }
     ],
     "menus": {
@@ -678,11 +707,6 @@
           "command": "1c-platform-tools.todo.showPanel",
           "when": "view == 1c-platform-tools",
           "group": "navigation@3"
-        },
-        {
-          "command": "1c-platform-tools.projects.focusView",
-          "when": "view == 1c-platform-tools",
-          "group": "navigation@3.5"
         },
         {
           "command": "1c-platform-tools.getStarted.open",
@@ -705,8 +729,13 @@
           "group": "navigation@2"
         },
         {
-          "command": "1c-platform-tools.todo.toggleGroupBy",
-          "when": "view == 1c-platform-tools-todo-list",
+          "command": "1c-platform-tools.todo._viewAsList",
+          "when": "view == 1c-platform-tools-todo-list && 1c-platform-tools.todo.groupByHierarchy",
+          "group": "navigation@3"
+        },
+        {
+          "command": "1c-platform-tools.todo._viewAsHierarchy",
+          "when": "view == 1c-platform-tools-todo-list && !1c-platform-tools.todo.groupByHierarchy",
           "group": "navigation@3"
         },
         {
@@ -723,6 +752,11 @@
           "command": "1c-platform-tools.projects._viewAsList",
           "when": "view == 1c-platform-tools-projects-favorites && !1c-platform-tools.projects.viewAsList",
           "group": "navigation@13"
+        },
+        {
+          "command": "1c-platform-tools.projects.configureFavorites",
+          "when": "view == 1c-platform-tools-projects-favorites",
+          "group": "navigation@10"
         },
         {
           "command": "1c-platform-tools.projects.filterByTag",
@@ -907,7 +941,7 @@
           {
             "id": "step2-auto-detect",
             "title": "Автоматическое определение проектов",
-            "description": "Укажите папки для поиска проектов (baseFolders) и исключения (ignorePatterns). Панель «Проекты 1С» покажет все найденные проекты, избранное и теги.\n\n[Открыть настройки](command:workbench.action.openSettings)\n[Открыть список проектов](command:1c-platform-tools.projects.listOpen)",
+            "description": "Укажите папки для поиска проектов (baseFolders) и исключения (ignorePatterns). Панель «Проекты 1С» покажет все найденные проекты, избранное и теги.\n\n[Настройка проектов](command:1c-platform-tools.projects.openSettings)\n[Открыть список проектов](command:1c-platform-tools.projects.listOpen)",
             "media": { "markdown": "walkthrough/step2-auto-detect.md" }
           },
           {
@@ -1032,7 +1066,7 @@
         "1c-platform-tools.projects.ignorePatterns": {
           "type": "array",
           "items": { "type": "string" },
-          "default": ["node_modules", ".git", "out", "oscript_modules", "vendor", "build"],
+          "default": [".git", "out", "oscript_modules", "build", "src"],
           "description": "Имена каталогов или фрагменты пути для исключения из сканирования (например: node_modules, .git)."
         },
         "1c-platform-tools.projects.cacheBetweenSessions": {
@@ -1042,8 +1076,9 @@
         },
         "1c-platform-tools.projects.maxDepthRecursion": {
           "type": "number",
-          "default": -1,
-          "description": "Максимальная глубина вложенности при сканировании baseFolders (-1 — без ограничения). Помогает ускорить поиск в глубоких деревьях."
+          "minimum": 0,
+          "default": 0,
+          "description": "Максимальная глубина вложенности при сканировании baseFolders (0 — без ограничения, положительное число — ограничить глубину)."
         },
         "1c-platform-tools.projects.projectsLocation": {
           "type": "string",
@@ -1138,8 +1173,7 @@
   },
   "dependencies": {
     "glob": "^10.4.5",
-    "minimatch": "^3.0.4",
-    "walker": "^1.0.7"
+    "minimatch": "^3.0.4"
   },
   "devDependencies": {
     "@types/node": "22.x",

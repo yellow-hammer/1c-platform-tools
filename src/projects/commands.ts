@@ -14,10 +14,10 @@ import {
 	expandHomePath,
 	pickProjects,
 	openPickedProject,
+	pickFavoritesToConfigure,
 	pickTags,
 	showStatusBar,
 	updateStatusBar,
-	StorageProvider,
 	InvocationSource,
 } from './index';
 
@@ -89,17 +89,24 @@ export function registerProjectsCommands(
 		)
 	);
 
-	// Настройки проектов
+	// Настройки проектов (контекстное открытие: фильтр по расширению + projects)
 	disposables.push(
 		vscode.commands.registerCommand('1c-platform-tools.projects.openSettings', () => {
-			void vscode.commands.executeCommand('workbench.action.openSettings', '1c-platform-tools.projects');
+			void vscode.commands.executeCommand(
+				'workbench.action.openSettings',
+				'@ext:yellow-hammer.1c-platform-tools 1c-platform-tools.projects'
+			);
 		})
 	);
 
-	// Focus Projects view (переключение на контейнер «Проекты 1С»)
+	// Настроить избранное (QuickPick с флажками)
 	disposables.push(
-		vscode.commands.registerCommand('1c-platform-tools.projects.focusView', async () => {
-			await vscode.commands.executeCommand('workbench.view.extension.1c-platform-tools-projects-favorites');
+		vscode.commands.registerCommand('1c-platform-tools.projects.configureFavorites', async () => {
+			const changed = await pickFavoritesToConfigure(projectStorage, locator, stack);
+			if (changed) {
+				providers.refreshStorage();
+				void vscode.window.showInformationMessage('Избранное обновлено.');
+			}
 		})
 	);
 
@@ -210,7 +217,7 @@ export function registerProjectsCommands(
 			});
 
 			input.onDidTriggerButton(async (btn) => {
-				if (btn !== tagsButton) return;
+				if (btn !== tagsButton) {return;}
 				const tags = await pickTags(projectStorage, selectedTags ?? [], {
 					useDefaultTags: true,
 					useNoTagsDefined: false,
@@ -341,7 +348,7 @@ export function registerProjectsCommands(
 		vscode.commands.registerCommand('1c-platform-tools.projects.renameProject', (node: { command?: { arguments?: unknown[] } }) => {
 			const oldName = node?.command?.arguments?.[1] as string;
 			const oldPath = node?.command?.arguments?.[0] as string;
-			if (!oldName) return;
+			if (!oldName) {return;}
 			void vscode.window
 				.showInputBox({
 					prompt: 'Новое имя проекта',
@@ -349,7 +356,7 @@ export function registerProjectsCommands(
 					value: oldName,
 				})
 				.then((newName) => {
-					if (newName === undefined || newName === oldName || !newName.trim()) return;
+					if (newName === undefined || newName === oldName || !newName.trim()) {return;}
 					if (projectStorage.exists(newName) && newName.toLowerCase() !== oldName.toLowerCase()) {
 						void vscode.window.showErrorMessage('Проект с таким именем уже существует.');
 						return;
@@ -368,9 +375,9 @@ export function registerProjectsCommands(
 	disposables.push(
 		vscode.commands.registerCommand('1c-platform-tools.projects.editTags', async (node: { command?: { arguments?: unknown[] } }) => {
 			const projectPath = node?.command?.arguments?.[0] as string;
-			if (!projectPath) return;
+			if (!projectPath) {return;}
 			const project = projectStorage.existsWithRootPath(projectPath);
-			if (!project) return;
+			if (!project) {return;}
 			const tags = await pickTags(projectStorage, project.tags, {
 				useDefaultTags: true,
 				useNoTagsDefined: false,
@@ -388,9 +395,9 @@ export function registerProjectsCommands(
 	disposables.push(
 		vscode.commands.registerCommand('1c-platform-tools.projects.toggleEnabled', (node: { command?: { arguments?: unknown[] } }) => {
 			const name = node?.command?.arguments?.[1] as string;
-			if (!name) return;
+			if (!name) {return;}
 			const enabled = projectStorage.toggleEnabled(name);
-			if (enabled === undefined) return;
+			if (enabled === undefined) {return;}
 			projectStorage.save();
 			providers.refreshStorage();
 			void vscode.window.showInformationMessage(
@@ -410,7 +417,7 @@ export function registerProjectsCommands(
 	disposables.push(
 		vscode.commands.registerCommand('1c-platform-tools.projects.addToFavorites', (node?: { command?: { arguments?: unknown[] }; label?: string }) => {
 			const projectPath = node?.command?.arguments?.[0] as string;
-			if (!projectPath) return;
+			if (!projectPath) {return;}
 			const name = (node?.label as string) ?? path.basename(projectPath);
 			if (projectStorage.exists(name)) {
 				void vscode.window.showInformationMessage('Проект уже в избранном.');
@@ -442,31 +449,21 @@ export function registerProjectsCommands(
 		})
 	);
 
-	// Sort by (только Name и Path — Saved и Recent удалены из меню)
-	const updateSortByContext = async (): Promise<void> => {
-		const sortBy = config.get<string>('projects.sortList', 'Name');
-		await vscode.commands.executeCommand('setContext', '1c-platform-tools.projects.sortBy', sortBy);
-	};
-	void updateSortByContext();
-
+	// Sort by (только Name и Path — enablement через config в package.json)
 	disposables.push(
 		vscode.commands.registerCommand('1c-platform-tools.projects._sortByName', async () => {
 			await config.update('projects.sortList', 'Name', vscode.ConfigurationTarget.Global);
-			await updateSortByContext();
 			providers.refreshStorage();
 		}),
 		vscode.commands.registerCommand('1c-platform-tools.projects._sortByPath', async () => {
 			await config.update('projects.sortList', 'Path', vscode.ConfigurationTarget.Global);
-			await updateSortByContext();
 			providers.refreshStorage();
 		})
 	);
 
-	// Реакция на смену sortList
 	disposables.push(
 		vscode.workspace.onDidChangeConfiguration((e) => {
 			if (e.affectsConfiguration('1c-platform-tools.projects.sortList')) {
-				void updateSortByContext();
 				providers.refreshStorage();
 			}
 		})

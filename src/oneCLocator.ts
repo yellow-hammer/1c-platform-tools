@@ -1,14 +1,12 @@
 /**
  * Локатор проектов 1С:
- * кэш в файле (globalStoragePath), загрузка при создании, сканирование через walker.
+ * кэш в файле (globalStoragePath), загрузка при создании, сканирование через fs.readdirSync.
  */
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import minimatch from 'minimatch';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const walker = require('walker');
 
 import { expandHomePath, expandWithGlobPatterns, updateWithPathSeparator } from './projectsPathUtils';
 
@@ -25,7 +23,7 @@ export class OneCLocator {
 	public projectList: string[] = [];
 	private alreadyLocated = false;
 	private baseFolders: string[] = [];
-	private maxDepth = -1;
+	private maxDepth = 0;
 	private ignoredFolders: string[] = [];
 	private useCachedProjects = true;
 	private readonly cacheFilePath: string;
@@ -45,7 +43,7 @@ export class OneCLocator {
 	}
 
 	private isMaxDepthReached(currentDepth: number, initialDepth: number): boolean {
-		return this.maxDepth >= 0 && currentDepth - initialDepth > this.maxDepth;
+		return this.maxDepth > 0 && currentDepth - initialDepth > this.maxDepth;
 	}
 
 	private isFolderIgnored(folderName: string): boolean {
@@ -59,7 +57,7 @@ export class OneCLocator {
 		this.baseFolders = Array.isArray(folders) ? folders.filter((p): p is string => typeof p === 'string' && p.length > 0) : [];
 		const patterns = config.get<string[]>('projects.ignorePatterns');
 		this.ignoredFolders = Array.isArray(patterns) ? patterns.filter((p): p is string => typeof p === 'string') : [];
-		this.maxDepth = config.get<number>('projects.maxDepthRecursion', -1);
+		this.maxDepth = config.get<number>('projects.maxDepthRecursion', 0);
 		this.useCachedProjects = config.get<boolean>('projects.cacheBetweenSessions', true);
 	}
 
@@ -118,6 +116,36 @@ export class OneCLocator {
 		}
 	}
 
+	private scanDir(dir: string, initialDepth: number, seen: Set<string>): void {
+		let entries: fs.Dirent[];
+		try {
+			entries = fs.readdirSync(dir, { withFileTypes: true });
+		} catch {
+			return;
+		}
+		const hasPackagedef = entries.some((e) => !e.isDirectory() && e.name === PACKAGEDEF);
+		if (hasPackagedef) {
+			const norm = path.normalize(dir);
+			if (!seen.has(norm)) {
+				seen.add(norm);
+				this.projectList.push(norm);
+			}
+		}
+		for (const e of entries) {
+			if (!e.isDirectory()) {
+				continue;
+			}
+			if (this.isFolderIgnored(e.name)) {
+				continue;
+			}
+			const childPath = path.join(dir, e.name);
+			if (this.isMaxDepthReached(this.getPathDepth(childPath), initialDepth)) {
+				continue;
+			}
+			this.scanDir(childPath, initialDepth, seen);
+		}
+	}
+
 	public async locateProjects(): Promise<string[]> {
 		this.refreshConfig();
 		let projectsDirList = this.baseFolders.map((p) => expandHomePath(p));
@@ -137,41 +165,17 @@ export class OneCLocator {
 		this.projectList = [];
 		const seen = new Set<string>();
 
-		await Promise.all(
-			projectsDirList.map((projectBasePath) => {
-				return new Promise<void>((resolvePromise) => {
-					if (!fs.existsSync(projectBasePath)) {
-						resolvePromise();
-						return;
-					}
-					const initialDepth = this.getPathDepth(projectBasePath);
-					walker(projectBasePath)
-						.filterDir((dir: string) => {
-							const name = path.basename(dir);
-							return (
-								!this.isFolderIgnored(name) &&
-								!this.isMaxDepthReached(this.getPathDepth(dir), initialDepth)
-							);
-						})
-						.on('dir', (dir: string) => {
-							const packagedefPath = path.join(dir, PACKAGEDEF);
-							if (fs.existsSync(packagedefPath)) {
-								const norm = path.normalize(dir);
-								if (!seen.has(norm)) {
-									seen.add(norm);
-									this.projectList.push(norm);
-								}
-							}
-						})
-						.on('error', (err: Error) => {
-							console.warn('1c-platform-tools projects walker:', err);
-						})
-						.on('end', () => {
-							resolvePromise();
-						});
-				});
-			})
-		);
+		for (const projectBasePath of projectsDirList) {
+			if (!fs.existsSync(projectBasePath)) {
+				continue;
+			}
+			const stat = fs.statSync(projectBasePath);
+			if (!stat.isDirectory()) {
+				continue;
+			}
+			const initialDepth = this.getPathDepth(projectBasePath);
+			this.scanDir(projectBasePath, initialDepth, seen);
+		}
 
 		this.projectList.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 		this.updateCacheFile();

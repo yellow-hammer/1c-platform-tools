@@ -65,7 +65,7 @@ export async function pickTags(
 		let ignoreHide = false;
 
 		const doResolve = (value: string[] | undefined): void => {
-			if (resolved) return;
+			if (resolved) {return;}
 			resolved = true;
 			quickPick.hide();
 			quickPick.dispose();
@@ -79,12 +79,12 @@ export async function pickTags(
 		});
 
 		quickPick.onDidHide(() => {
-			if (ignoreHide) return;
+			if (ignoreHide) {return;}
 			doResolve(undefined);
 		});
 
 		quickPick.onDidTriggerButton(async (button) => {
-			if (button !== addTagsButton) return;
+			if (button !== addTagsButton) {return;}
 			ignoreHide = true;
 
 			const input = await vscode.window.showInputBox({

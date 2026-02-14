@@ -29,7 +29,7 @@ const DEFAULT_EXCLUDE_SEGMENTS = [
 const MAX_FILES_TO_SCAN = 5000;
 
 function parseExcludeSegments(excludeStr: string): string[] {
-	if (!excludeStr.trim()) return DEFAULT_EXCLUDE_SEGMENTS;
+	if (!excludeStr.trim()) {return DEFAULT_EXCLUDE_SEGMENTS;}
 	return excludeStr
 		.split(',')
 		.map((s) => s.trim().replace(/^\*\*\//, '').replace(/\/\*\*$/, ''))
@@ -54,9 +54,9 @@ function buildTagRegex(tags: string[]): RegExp {
  */
 function isCommentLine(uri: vscode.Uri, line: string, tagMatchIndex: number): boolean {
 	const ext = (uri.fsPath.split('.').pop() ?? '').toLowerCase();
-	if (ext === 'md') return true;
+	if (ext === 'md') {return true;}
 	if (ext === 'feature') {
-		if (!line.trimStart().startsWith('#')) return false;
+		if (!line.trimStart().startsWith('#')) {return false;}
 		const before = line.slice(0, tagMatchIndex).trim();
 		return before === '' || before === '#' || before.startsWith('# ');
 	}

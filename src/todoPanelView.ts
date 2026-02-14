@@ -154,7 +154,7 @@ export class TodoPanelTreeDataProvider implements vscode.TreeDataProvider<TodoNo
 		const byPath = new Map<string, TodoEntry[]>();
 		for (const e of entries) {
 			const p = this._relPath(e.uri);
-			if (!byPath.has(p)) byPath.set(p, []);
+			if (!byPath.has(p)) {byPath.set(p, []);}
 			byPath.get(p)!.push(e);
 		}
 		return Array.from(byPath.entries())
@@ -170,7 +170,7 @@ export class TodoPanelTreeDataProvider implements vscode.TreeDataProvider<TodoNo
 			list = list.filter((e) => set.has(e.tag));
 		}
 		const scope = this._context.globalState.get<FilterScope>(STATE_KEYS.filterScope) ?? 'all';
-		if (scope === 'all') return list;
+		if (scope === 'all') {return list;}
 		if (scope === 'currentFile') {
 			const activeUri = vscode.window.activeTextEditor?.document.uri.toString();
 			return activeUri ? list.filter((e) => e.uri.toString() === activeUri) : [];
@@ -199,7 +199,7 @@ export class TodoPanelTreeDataProvider implements vscode.TreeDataProvider<TodoNo
 	}
 
 	getTreeItem(node: TodoNode): vscode.TreeItem {
-		if (node.kind === 'root') return new vscode.TreeItem('', vscode.TreeItemCollapsibleState.None);
+		if (node.kind === 'root') {return new vscode.TreeItem('', vscode.TreeItemCollapsibleState.None);}
 		if (node.kind === 'placeholder') {
 			const item = new vscode.TreeItem(node.message, vscode.TreeItemCollapsibleState.None);
 			item.contextValue = 'todoPlaceholder';

@@ -21,9 +21,9 @@ export function showStatusBar(
 
 	const config = vscode.workspace.getConfiguration('1c-platform-tools');
 	const show = config.get<boolean>('projects.showProjectNameInStatusBar', true);
-	if (!show) return;
+	if (!show) {return;}
 
-	if (!currentPath) return;
+	if (!currentPath) {return;}
 
 	if (!statusItem) {
 		statusItem = vscode.window.createStatusBarItem('1c-platform-tools.projects.statusBar', vscode.StatusBarAlignment.Left);

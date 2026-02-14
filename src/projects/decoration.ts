@@ -15,8 +15,8 @@ export function setCurrentProjectPath(rootPath: string | undefined): void {
 	currentProjectPath = rootPath ? path.normalize(rootPath) : undefined;
 	if (prev !== currentProjectPath && decorationEmitter) {
 		const uris: vscode.Uri[] = [];
-		if (prev) uris.push(vscode.Uri.from({ scheme: VIEW_SCHEME, path: prev }));
-		if (currentProjectPath) uris.push(vscode.Uri.from({ scheme: VIEW_SCHEME, path: currentProjectPath }));
+		if (prev) {uris.push(vscode.Uri.from({ scheme: VIEW_SCHEME, path: prev }));}
+		if (currentProjectPath) {uris.push(vscode.Uri.from({ scheme: VIEW_SCHEME, path: currentProjectPath }));}
 		decorationEmitter.fire(uris.length > 0 ? uris : []);
 	}
 }

@@ -24,8 +24,8 @@ export interface PickedResult {
 
 function validatePath(item: vscode.QuickPickItem, store: ProjectStorage | undefined): boolean {
 	const p = typeof item.description === 'string' ? item.description : '';
-	if (!p) return false;
-	if (fs.existsSync(p)) return true;
+	if (!p) {return false;}
+	if (fs.existsSync(p)) {return true;}
 	if (store) {
 		void vscode.window
 			.showErrorMessage('Путь проекта не существует. Что сделать?', { title: 'Обновить путь' }, { title: 'Удалить' })
@@ -43,16 +43,16 @@ function validatePath(item: vscode.QuickPickItem, store: ProjectStorage | undefi
 
 /** Нужно ли открывать в новом окне с учётом настроек. */
 export function shouldOpenInNewWindow(forceNew: boolean, source: InvocationSource): boolean {
-	if (!forceNew) return false;
+	if (!forceNew) {return false;}
 	if (vscode.workspace.workspaceFolders?.length || vscode.window.activeTextEditor) {
 		return true;
 	}
 	const cfg = vscode.workspace.getConfiguration('1c-platform-tools');
 	const mode = cfg.get<string>('projects.openInCurrentWindowIfEmpty', 'always');
-	if (mode === 'always') return false;
-	if (mode === 'never') return true;
-	if (mode === 'onlyUsingCommandPalette') return source !== InvocationSource.Palette;
-	if (mode === 'onlyUsingSideBar') return source !== InvocationSource.SideBar;
+	if (mode === 'always') {return false;}
+	if (mode === 'never') {return true;}
+	if (mode === 'onlyUsingCommandPalette') {return source !== InvocationSource.Palette;}
+	if (mode === 'onlyUsingSideBar') {return source !== InvocationSource.SideBar;}
 	return true;
 }
 
@@ -63,14 +63,14 @@ async function needsConfirm(source: InvocationSource): Promise<boolean> {
 	}
 	const cfg = vscode.workspace.getConfiguration('1c-platform-tools');
 	const mode = cfg.get<string>('projects.confirmSwitchOnActiveWindow', 'never');
-	if (mode === 'never') return false;
-	if (mode === 'onlyUsingCommandPalette') return source === InvocationSource.Palette;
-	if (mode === 'onlyUsingSideBar') return source === InvocationSource.SideBar;
+	if (mode === 'never') {return false;}
+	if (mode === 'onlyUsingCommandPalette') {return source === InvocationSource.Palette;}
+	if (mode === 'onlyUsingSideBar') {return source === InvocationSource.SideBar;}
 	return mode === 'always';
 }
 
 export async function canSwitchOnActiveWindow(source: InvocationSource): Promise<boolean> {
-	if (!(await needsConfirm(source))) return true;
+	if (!(await needsConfirm(source))) {return true;}
 	const ch = await vscode.window.showWarningMessage(
 		'Открыть проект в активном окне?',
 		{ modal: true },
@@ -88,7 +88,6 @@ export async function pickProjects(
 	context: vscode.ExtensionContext
 ): Promise<PickedResult | undefined> {
 	const cfg = vscode.workspace.getConfiguration('1c-platform-tools');
-	const groupByFavorites = cfg.get<boolean>('projects.groupList', false);
 	const hideCurrent = cfg.get<boolean>('projects.removeCurrentProjectFromList', true);
 	const searchFullPath = cfg.get<boolean>('projects.filterOnFullPath', false);
 	const filterTags = context.globalState.get<string[]>('1c-platform-tools.projects.filterByTags', []);
@@ -107,21 +106,12 @@ export async function pickProjects(
 		.map((p) => ({ label: path.basename(p) || p, description: p }));
 	detected = sortProjects(detected, recent);
 
-	let items: Array<vscode.QuickPickItem & { path: string }>;
-	if (groupByFavorites && favorites.length > 0 && detected.length > 0) {
-		items = [
-			{ label: 'Избранное', kind: vscode.QuickPickItemKind.Separator, path: '' },
-			...favorites.map((f) => ({ ...f, path: f.description })),
-			{ label: 'Все проекты', kind: vscode.QuickPickItemKind.Separator, path: '' },
-			...detected.map((d) => ({ ...d, path: d.description })),
-		];
-	} else {
-		const merged = sortProjects(
-			[...favorites.map((f) => ({ ...f, path: f.description })), ...detected.map((d) => ({ ...d, path: d.description }))],
-			recent
-		);
-		items = merged.map((m) => ({ ...m, path: m.description }));
-	}
+	const items: Array<vscode.QuickPickItem & { path: string }> = [
+		{ label: 'Избранное', kind: vscode.QuickPickItemKind.Separator, path: '' },
+		...favorites.map((f) => ({ ...f, path: f.description })),
+		{ label: 'Все проекты', kind: vscode.QuickPickItemKind.Separator, path: '' },
+		...detected.map((d) => ({ ...d, path: d.description })),
+	];
 
 	const visibleCount = items.filter((i) => i.kind !== vscode.QuickPickItemKind.Separator).length;
 	if (visibleCount === 0) {
@@ -147,7 +137,7 @@ export async function pickProjects(
 
 		picker.onDidChangeSelection((selected) => {
 			const it = selected[0];
-			if (!it || it.kind === vscode.QuickPickItemKind.Separator) return;
+			if (!it || it.kind === vscode.QuickPickItemKind.Separator) {return;}
 			const p = 'path' in it ? (it as { path: string }).path : (it.description as string);
 			if (!validatePath(it, store)) {
 				resolve(undefined);
@@ -163,7 +153,7 @@ export async function pickProjects(
 
 		picker.onDidTriggerItemButton((ev) => {
 			const it = ev.item;
-			if (!it || it.kind === vscode.QuickPickItemKind.Separator) return;
+			if (!it || it.kind === vscode.QuickPickItemKind.Separator) {return;}
 			const p = 'path' in it ? (it as { path: string }).path : (it.description as string);
 			if (!validatePath(it, store)) {
 				resolve(undefined);
@@ -189,6 +179,68 @@ export async function pickProjects(
 	});
 }
 
+/**
+ * Открывает QuickPick для настройки избранного: выбор проектов флажками.
+ * @returns true при успешном сохранении.
+ */
+export async function pickFavoritesToConfigure(
+	store: ProjectStorage,
+	locator: OneCLocator,
+	recent: ProjectsStack
+): Promise<boolean> {
+	const favorites = store.entries();
+	const sortedFav = sortProjects(favorites, recent);
+
+	const detectedPaths = await locator.locateProjects();
+	const detected = detectedPaths
+		.filter((p) => !sortedFav.some((f) => path.normalize(f.description) === path.normalize(p)))
+		.map((p) => ({ label: path.basename(p) || p, description: p }));
+	const sortedDet = sortProjects(detected, recent);
+
+	const favoritePaths = new Set(sortedFav.map((f) => path.normalize(f.description)));
+	const pickItems: vscode.QuickPickItem[] = [
+		{ label: 'Избранное', kind: vscode.QuickPickItemKind.Separator },
+		...sortedFav.map((f) => ({ label: f.label, description: f.description, picked: true })),
+		{ label: 'Все проекты', kind: vscode.QuickPickItemKind.Separator },
+		...sortedDet.map((d) => ({ label: d.label, description: d.description, picked: false })),
+	];
+
+	const selected = await vscode.window.showQuickPick(pickItems, {
+		canPickMany: true,
+		placeHolder: 'Отметьте проекты для избранного',
+		title: 'Настроить избранное',
+		matchOnDescription: true,
+	});
+
+	if (selected === undefined) {
+		return false;
+	}
+
+	const selectedItems = selected as vscode.QuickPickItem[];
+	const selectedPaths = new Set(
+		selectedItems.map((it) => path.normalize(typeof it.description === 'string' ? it.description : ''))
+	);
+	const toAdd = selectedItems.filter((it) => {
+		const p = typeof it.description === 'string' ? it.description : '';
+		return p && !favoritePaths.has(path.normalize(p));
+	});
+	const toRemove = sortedFav.filter((f) => !selectedPaths.has(path.normalize(f.description)));
+
+	for (const it of toAdd) {
+		const p = typeof it.description === 'string' ? it.description : '';
+		if (p && fs.existsSync(p)) {
+			store.add(typeof it.label === 'string' ? it.label : String(it.label), p);
+		}
+	}
+	for (const f of toRemove) {
+		store.remove(f.label);
+	}
+	if (toAdd.length > 0 || toRemove.length > 0) {
+		store.save();
+	}
+	return toAdd.length > 0 || toRemove.length > 0;
+}
+
 export async function openPickedProject(
 	picked: PickedResult | undefined,
 	forceNew: boolean,
@@ -196,9 +248,9 @@ export async function openPickedProject(
 	recent: ProjectsStack,
 	_context: vscode.ExtensionContext
 ): Promise<void> {
-	if (!picked) return;
+	if (!picked) {return;}
 	if (!picked.openInNewWindow && !forceNew) {
-		if (!(await canSwitchOnActiveWindow(source))) return;
+		if (!(await canSwitchOnActiveWindow(source))) {return;}
 	}
 	recent.push(picked.item.name);
 	const openNew = shouldOpenInNewWindow(forceNew || picked.openInNewWindow, source);

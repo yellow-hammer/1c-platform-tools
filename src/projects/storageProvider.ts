@@ -21,7 +21,7 @@ function collectDuplicateLabels(labels: string[]): Set<string> {
 	}
 	const dupes = new Set<string>();
 	for (const [k, n] of byLower) {
-		if (n > 1) dupes.add(k);
+		if (n > 1) {dupes.add(k);}
 	}
 	return dupes;
 }
@@ -31,8 +31,8 @@ function resolveCollapseState(
 	tagId: string,
 	behavior: string
 ): vscode.TreeItemCollapsibleState {
-	if (behavior === 'alwaysExpanded') return vscode.TreeItemCollapsibleState.Expanded;
-	if (behavior === 'alwaysCollapsed') return vscode.TreeItemCollapsibleState.Collapsed;
+	if (behavior === 'alwaysExpanded') {return vscode.TreeItemCollapsibleState.Expanded;}
+	if (behavior === 'alwaysCollapsed') {return vscode.TreeItemCollapsibleState.Collapsed;}
 	const stored = state[tagId];
 	if (stored === undefined) {
 		return behavior === 'startExpanded'
@@ -99,7 +99,7 @@ export class StorageProvider implements vscode.TreeDataProvider<ProjectNode | Ta
 			});
 		}
 
-		if (this.store.count() === 0) return [];
+		if (this.store.count() === 0) {return [];}
 
 		const showAsList = this.context.globalState.get<boolean>('1c-platform-tools.projects.viewAsList', true);
 		const cfg = vscode.workspace.getConfiguration('1c-platform-tools');

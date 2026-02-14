@@ -26,7 +26,7 @@ export class ProjectsStack {
 	/** Добавляет проект в начало списка недавних. */
 	addRecent(name: string): void {
 		const idx = this.recent.indexOf(name);
-		if (idx >= 0) this.recent.splice(idx, 1);
+		if (idx >= 0) {this.recent.splice(idx, 1);}
 		this.recent.unshift(name);
 		if (this.recent.length > MAX_ITEMS) {
 			this.recent = this.recent.slice(0, MAX_ITEMS);

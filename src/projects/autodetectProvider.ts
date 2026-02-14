@@ -17,7 +17,7 @@ function getDuplicateLabels(labels: string[]): Set<string> {
 	}
 	const duplicates = new Set<string>();
 	for (const [key, n] of counts) {
-		if (n > 1) duplicates.add(key);
+		if (n > 1) {duplicates.add(key);}
 	}
 	return duplicates;
 }
