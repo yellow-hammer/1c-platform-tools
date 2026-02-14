@@ -1,6 +1,6 @@
 {
   "name": "1c-platform-tools",
-  "displayName": "1C Platform Tools",
+  "displayName": "1C:Platform Tools",
   "description": "Расширение для Visual Studio Code с инструментами разработки для экосистемы 1C. Предоставляет удобный интерфейс для работы с проектами 1C, включая разбор обработок, отчетов и конфигураций.",
   "keywords": [
     "1c",
@@ -123,7 +123,14 @@
       {
         "command": "1c-platform-tools.settings.openTools",
         "title": "Настройки инструментов",
+        "icon": "$(gear)",
         "category": "1C: Дерево"
+      },
+      {
+        "command": "1c-platform-tools.settings.openTodo",
+        "title": "Настройки списка дел",
+        "icon": "$(gear)",
+        "category": "1C: Список дел"
       },
       {
         "command": "1c-platform-tools.settings.openGeneral",
@@ -605,6 +612,7 @@
       {
         "command": "1c-platform-tools.projects.openSettings",
         "title": "Настройки",
+        "icon": "$(gear)",
         "category": "1C: Проекты"
       },
       {
@@ -699,7 +707,7 @@
           "group": "navigation@1"
         },
         {
-          "command": "1c-platform-tools.settings",
+          "command": "1c-platform-tools.settings.openTools",
           "when": "view == 1c-platform-tools",
           "group": "navigation@2"
         },
@@ -739,9 +747,14 @@
           "group": "navigation@3"
         },
         {
-          "command": "1c-platform-tools.todo.refresh",
+          "command": "1c-platform-tools.settings.openTodo",
           "when": "view == 1c-platform-tools-todo-list",
           "group": "navigation@4"
+        },
+        {
+          "command": "1c-platform-tools.todo.refresh",
+          "when": "view == 1c-platform-tools-todo-list",
+          "group": "navigation@5"
         },
         {
           "command": "1c-platform-tools.projects._viewAsTags",
@@ -779,6 +792,11 @@
           "group": "2_projectManager"
         },
         {
+          "command": "1c-platform-tools.projects.openSettings",
+          "when": "view == 1c-platform-tools-projects-all",
+          "group": "navigation@9"
+        },
+        {
           "command": "1c-platform-tools.projects.listOpen",
           "when": "view == 1c-platform-tools-projects-all",
           "group": "navigation@10"
@@ -787,11 +805,6 @@
           "command": "1c-platform-tools.projects.refresh",
           "when": "view == 1c-platform-tools-projects-all",
           "group": "navigation@11"
-        },
-        {
-          "command": "1c-platform-tools.projects.openSettings",
-          "when": "view == 1c-platform-tools-projects-all",
-          "group": "2_projectManager"
         }
       ],
       "view/item/context": [
@@ -959,194 +972,212 @@
         ]
       }
     ],
-    "configuration": {
-      "title": "1C Platform Tools",
-      "properties": {
-        "1c-platform-tools.vrunner.path": {
-          "type": "string",
-          "default": "vrunner",
-          "description": "Путь к vrunner (vanessa-runner)"
-        },
-        "1c-platform-tools.useIbcmd": {
-          "type": "boolean",
-          "default": false,
-          "description": "Использовать утилиту ibcmd вместо конфигуратора для выполнения операций с информационной базой. ibcmd - утилита командной строки, которая ускоряет выполнение операций (загрузка, выгрузка, сборка, разбор конфигурации и расширений) без запуска графического интерфейса Конфигуратора. Примечание: при использовании Docker (docker.enabled = true) ibcmd используется автоматически, так как в Docker нет GUI."
-        },
-        "1c-platform-tools.vrunner.initSettingsPath": {
-          "type": "string",
-          "default": "./tools/vrunner.init.json",
-          "description": "Путь к файлу настроек инициализации vrunner (vrunner.init.json)"
-        },
-        "1c-platform-tools.paths.out": {
-          "type": "string",
-          "default": "build/out",
-          "description": "Путь к результатам сборки"
-        },
-        "1c-platform-tools.paths.dist": {
-          "type": "string",
-          "default": "build/dist",
-          "description": "Каталог хранения шаблонов (cf, cfu, файлы настроек объединения). Используется в группе «Поддержка» при выборе файлов."
-        },
-        "1c-platform-tools.paths.cf": {
-          "type": "string",
-          "default": "src/cf",
-          "description": "Путь к исходному коду конфигурации"
-        },
-        "1c-platform-tools.paths.cfe": {
-          "type": "string",
-          "default": "src/cfe",
-          "description": "Путь к исходному коду расширений"
-        },
-        "1c-platform-tools.paths.epf": {
-          "type": "string",
-          "default": "src/epf",
-          "description": "Путь к исходному коду внешних обработок"
-        },
-        "1c-platform-tools.paths.erf": {
-          "type": "string",
-          "default": "src/erf",
-          "description": "Путь к исходному коду внешних отчетов"
-        },
-        "1c-platform-tools.allure.path": {
-          "type": "string",
-          "default": "allure",
-          "description": "Путь к allure"
-        },
-        "1c-platform-tools.docker.enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "Использовать Docker для выполнения команд vrunner. Включает выполнение команд vrunner через Docker-контейнер вместо локального выполнения."
-        },
-        "1c-platform-tools.docker.image": {
-          "type": "string",
-          "default": "",
-          "description": "Docker-образ для выполнения команд vrunner. Образ должен содержать установленную платформу 1С:Предприятие и vanessa-runner. Пример: 'myregistry/onec-image:8.3.25' или 'localhost/onec-image:latest'. Если не указан, будет показана ошибка с инструкцией."
-        },
-        "1c-platform-tools.logLevel": {
-          "type": "string",
-          "enum": [
-            "error",
-            "warnings",
-            "info",
-            "debug"
-          ],
-          "default": "info",
-          "description": "Уровень логирования в панель Output: error — только ошибки, warnings — ошибки и предупреждения, info — плюс информационные сообщения, debug — полный вывод для диагностики."
-        },
-        "1c-platform-tools.todo.include": {
-          "type": "string",
-          "default": "**/*.{bsl,os,md,feature}",
-          "description": "Glob-паттерн для поиска файлов при сканировании списка TODO."
-        },
-        "1c-platform-tools.todo.exclude": {
-          "type": "string",
-          "default": "**/oscript_modules/**,**/out/**,**/.git/**,**/vendor/**,**/build/**",
-          "description": "Glob-паттерн исключений при сканировании списка TODO."
-        },
-        "1c-platform-tools.todo.tags": {
-          "type": "array",
-          "items": {
-            "type": "string"
+    "configuration": [
+      {
+        "title": "Инструменты",
+        "id": "1c-platform-tools.tools",
+        "order": 0,
+        "properties": {
+          "1c-platform-tools.vrunner.path": {
+            "type": "string",
+            "default": "vrunner",
+            "description": "Путь к vrunner (vanessa-runner)"
           },
-          "default": [
-            "TODO",
-            "FIXME",
-            "XXX",
-            "HACK",
-            "BUG"
-          ],
-          "description": "Теги для поиска в комментариях (регистр не учитывается)."
-        },
-        "1c-platform-tools.projects.baseFolders": {
-          "type": "array",
-          "items": { "type": "string" },
-          "default": [],
-          "description": "Папки для поиска проектов 1С (каталоги с файлом packagedef). Абсолютные пути или пути относительно домашней папки."
-        },
-        "1c-platform-tools.projects.ignorePatterns": {
-          "type": "array",
-          "items": { "type": "string" },
-          "default": [".git", "out", "oscript_modules", "build", "src"],
-          "description": "Имена каталогов или фрагменты пути для исключения из сканирования (например: node_modules, .git)."
-        },
-        "1c-platform-tools.projects.cacheBetweenSessions": {
-          "type": "boolean",
-          "default": true,
-          "description": "Кэшировать список найденных проектов между сессиями (как в Project Manager). При открытии панели сразу показывается кэш; полное сканирование — по кнопке «Обновить»."
-        },
-        "1c-platform-tools.projects.maxDepthRecursion": {
-          "type": "number",
-          "minimum": 0,
-          "default": 0,
-          "description": "Максимальная глубина вложенности при сканировании baseFolders (0 — без ограничения, положительное число — ограничить глубину)."
-        },
-        "1c-platform-tools.projects.projectsLocation": {
-          "type": "string",
-          "default": "",
-          "description": "Папка для хранения projects.json. Если указана — файл сохраняется туда (для синхронизации, как в Project Manager). Поддерживает ~ и $home."
-        },
-        "1c-platform-tools.projects.sortList": {
-          "type": "string",
-          "enum": ["Saved", "Name", "Path", "Recent"],
-          "default": "Name",
-          "description": "Сортировка списка избранных проектов."
-        },
-        "1c-platform-tools.projects.groupList": {
-          "type": "boolean",
-          "default": false,
-          "description": "Группировать список в QuickPick: Избранное и Все проекты."
-        },
-        "1c-platform-tools.projects.removeCurrentProjectFromList": {
-          "type": "boolean",
-          "default": true,
-          "description": "Убрать текущий проект из списка в QuickPick."
-        },
-        "1c-platform-tools.projects.filterOnFullPath": {
-          "type": "boolean",
-          "default": false,
-          "description": "Искать при вводе также по полному пути."
-        },
-        "1c-platform-tools.projects.showProjectNameInStatusBar": {
-          "type": "boolean",
-          "default": true,
-          "description": "Показывать имя текущего проекта в статусной строке."
-        },
-        "1c-platform-tools.projects.openInNewWindowWhenClickingInStatusBar": {
-          "type": "boolean",
-          "default": false,
-          "description": "При клике на статусную строку открывать список в режиме «новое окно»."
-        },
-        "1c-platform-tools.projects.openInCurrentWindowIfEmpty": {
-          "type": "string",
-          "enum": ["always", "onlyUsingCommandPalette", "onlyUsingSideBar", "never"],
-          "default": "always",
-          "description": "Открывать в текущем окне, если оно пустое."
-        },
-        "1c-platform-tools.projects.confirmSwitchOnActiveWindow": {
-          "type": "string",
-          "enum": ["never", "onlyUsingCommandPalette", "onlyUsingSideBar", "always"],
-          "default": "never",
-          "description": "Подтверждение при переключении проекта в активном окне."
-        },
-        "1c-platform-tools.projects.tags": {
-          "type": "array",
-          "items": { "type": "string" },
-          "default": ["Личное", "Работа"],
-          "description": "Список тегов для организации проектов."
-        },
-        "1c-platform-tools.projects.tags.collapseItems": {
-          "type": "string",
-          "enum": ["alwaysExpanded", "alwaysCollapsed", "startExpanded", "startCollapsed"],
-          "default": "startExpanded",
-          "description": "Поведение групп тегов при отображении списком по тегам."
-        },
-        "1c-platform-tools.projects.showParentFolderInfoOnDuplicates": {
-          "type": "boolean",
-          "default": false,
-          "description": "Показывать родительскую папку при одинаковых именах проектов."
+          "1c-platform-tools.useIbcmd": {
+            "type": "boolean",
+            "default": false,
+            "description": "Использовать утилиту ibcmd вместо конфигуратора для выполнения операций с информационной базой. ibcmd - утилита командной строки, которая ускоряет выполнение операций (загрузка, выгрузка, сборка, разбор конфигурации и расширений) без запуска графического интерфейса Конфигуратора. Примечание: при использовании Docker (docker.enabled = true) ibcmd используется автоматически, так как в Docker нет GUI."
+          },
+          "1c-platform-tools.vrunner.initSettingsPath": {
+            "type": "string",
+            "default": "./tools/vrunner.init.json",
+            "description": "Путь к файлу настроек инициализации vrunner (vrunner.init.json)"
+          },
+          "1c-platform-tools.paths.out": {
+            "type": "string",
+            "default": "build/out",
+            "description": "Путь к результатам сборки"
+          },
+          "1c-platform-tools.paths.dist": {
+            "type": "string",
+            "default": "build/dist",
+            "description": "Каталог хранения шаблонов (cf, cfu, файлы настроек объединения). Используется в группе «Поддержка» при выборе файлов."
+          },
+          "1c-platform-tools.paths.cf": {
+            "type": "string",
+            "default": "src/cf",
+            "description": "Путь к исходному коду конфигурации"
+          },
+          "1c-platform-tools.paths.cfe": {
+            "type": "string",
+            "default": "src/cfe",
+            "description": "Путь к исходному коду расширений"
+          },
+          "1c-platform-tools.paths.epf": {
+            "type": "string",
+            "default": "src/epf",
+            "description": "Путь к исходному коду внешних обработок"
+          },
+          "1c-platform-tools.paths.erf": {
+            "type": "string",
+            "default": "src/erf",
+            "description": "Путь к исходному коду внешних отчетов"
+          },
+          "1c-platform-tools.allure.path": {
+            "type": "string",
+            "default": "allure",
+            "description": "Путь к allure"
+          },
+          "1c-platform-tools.docker.enabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Использовать Docker для выполнения команд vrunner. Включает выполнение команд vrunner через Docker-контейнер вместо локального выполнения."
+          },
+          "1c-platform-tools.docker.image": {
+            "type": "string",
+            "default": "",
+            "description": "Docker-образ для выполнения команд vrunner. Образ должен содержать установленную платформу 1С:Предприятие и vanessa-runner. Пример: 'myregistry/onec-image:8.3.25' или 'localhost/onec-image:latest'. Если не указан, будет показана ошибка с инструкцией."
+          },
+          "1c-platform-tools.logLevel": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warnings",
+              "info",
+              "debug"
+            ],
+            "default": "info",
+            "description": "Уровень логирования в панель Output: error — только ошибки, warnings — ошибки и предупреждения, info — плюс информационные сообщения, debug — полный вывод для диагностики."
+          }
+        }
+      },
+      {
+        "title": "Список дел",
+        "id": "1c-platform-tools.todo",
+        "order": 1,
+        "properties": {
+          "1c-platform-tools.todo.include": {
+            "type": "string",
+            "default": "**/*.{bsl,os,md,feature}",
+            "description": "Glob-паттерн для поиска файлов при сканировании списка TODO."
+          },
+          "1c-platform-tools.todo.exclude": {
+            "type": "string",
+            "default": "**/oscript_modules/**,**/out/**,**/.git/**,**/vendor/**,**/build/**",
+            "description": "Glob-паттерн исключений при сканировании списка TODO."
+          },
+          "1c-platform-tools.todo.tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              "TODO",
+              "FIXME",
+              "XXX",
+              "HACK",
+              "BUG"
+            ],
+            "description": "Теги для поиска в комментариях (регистр не учитывается)."
+          }
+        }
+      },
+      {
+        "title": "Проекты",
+        "id": "1c-platform-tools.projects",
+        "order": 2,
+        "properties": {
+          "1c-platform-tools.projects.baseFolders": {
+            "type": "array",
+            "items": { "type": "string" },
+            "default": [],
+            "description": "Папки для поиска проектов 1С (каталоги с файлом packagedef). Абсолютные пути или пути относительно домашней папки."
+          },
+          "1c-platform-tools.projects.ignorePatterns": {
+            "type": "array",
+            "items": { "type": "string" },
+            "default": [".git", "out", "oscript_modules", "build", "src"],
+            "description": "Имена каталогов или фрагменты пути для исключения из сканирования (например: node_modules, .git)."
+          },
+          "1c-platform-tools.projects.cacheBetweenSessions": {
+            "type": "boolean",
+            "default": true,
+            "description": "Кэшировать список найденных проектов между сессиями (как в Project Manager). При открытии панели сразу показывается кэш; полное сканирование — по кнопке «Обновить»."
+          },
+          "1c-platform-tools.projects.maxDepthRecursion": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0,
+            "description": "Максимальная глубина вложенности при сканировании baseFolders (0 — без ограничения, положительное число — ограничить глубину)."
+          },
+          "1c-platform-tools.projects.projectsLocation": {
+            "type": "string",
+            "default": "",
+            "description": "Папка для хранения projects.json. Если указана — файл сохраняется туда (для синхронизации, как в Project Manager). Поддерживает ~ и $home."
+          },
+          "1c-platform-tools.projects.sortList": {
+            "type": "string",
+            "enum": ["Saved", "Name", "Path", "Recent"],
+            "default": "Name",
+            "description": "Сортировка списка избранных проектов."
+          },
+          "1c-platform-tools.projects.groupList": {
+            "type": "boolean",
+            "default": false,
+            "description": "Группировать список в QuickPick: Избранное и Все проекты."
+          },
+          "1c-platform-tools.projects.removeCurrentProjectFromList": {
+            "type": "boolean",
+            "default": true,
+            "description": "Убрать текущий проект из списка в QuickPick."
+          },
+          "1c-platform-tools.projects.filterOnFullPath": {
+            "type": "boolean",
+            "default": false,
+            "description": "Искать при вводе также по полному пути."
+          },
+          "1c-platform-tools.projects.showProjectNameInStatusBar": {
+            "type": "boolean",
+            "default": true,
+            "description": "Показывать имя текущего проекта в статусной строке."
+          },
+          "1c-platform-tools.projects.openInNewWindowWhenClickingInStatusBar": {
+            "type": "boolean",
+            "default": false,
+            "description": "При клике на статусную строку открывать список в режиме «новое окно»."
+          },
+          "1c-platform-tools.projects.openInCurrentWindowIfEmpty": {
+            "type": "string",
+            "enum": ["always", "onlyUsingCommandPalette", "onlyUsingSideBar", "never"],
+            "default": "always",
+            "description": "Открывать в текущем окне, если оно пустое."
+          },
+          "1c-platform-tools.projects.confirmSwitchOnActiveWindow": {
+            "type": "string",
+            "enum": ["never", "onlyUsingCommandPalette", "onlyUsingSideBar", "always"],
+            "default": "never",
+            "description": "Подтверждение при переключении проекта в активном окне."
+          },
+          "1c-platform-tools.projects.tags": {
+            "type": "array",
+            "items": { "type": "string" },
+            "default": ["Личное", "Работа"],
+            "description": "Список тегов для организации проектов."
+          },
+          "1c-platform-tools.projects.tags.collapseItems": {
+            "type": "string",
+            "enum": ["alwaysExpanded", "alwaysCollapsed", "startExpanded", "startCollapsed"],
+            "default": "startExpanded",
+            "description": "Поведение групп тегов при отображении списком по тегам."
+          },
+          "1c-platform-tools.projects.showParentFolderInfoOnDuplicates": {
+            "type": "boolean",
+            "default": false,
+            "description": "Показывать родительскую папку при одинаковых именах проектов."
+          }
         }
       }
-    },
+    ],
     "colors": [
       {
         "id": "1cplatformtools.projects.currentProjectHighlightForeground",

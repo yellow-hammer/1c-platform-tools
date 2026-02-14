@@ -29,16 +29,17 @@ alwaysApply: true
 
 Настройки разбиты на подпункты по смыслу:
 
-| Раздел | Контекст вызова | Фильтр | Команда |
-|--------|-----------------|--------|---------|
-| Проекты | панель «Проекты 1С», пустое избранное, walkthrough | `1c-platform-tools.projects` | `1c-platform-tools.projects.openSettings` |
-| Инструменты | дерево, кнопка «Настройки» в панели инструментов | `1c-platform-tools.paths 1c-platform-tools.vrunner` | `1c-platform-tools.settings.openTools` |
-| Общее | — | `@ext:yellow-hammer.1c-platform-tools` | `1c-platform-tools.settings.openGeneral` |
+| Раздел      | Контекст вызова                                  | Фильтр                                                                                      | Команда                                   |
+|-------------|--------------------------------------------------|---------------------------------------------------------------------------------------------|-------------------------------------------|
+| Инструменты | дерево, кнопка «Настройки» в панели инструментов | `@ext:yellow-hammer.1c-platform-tools 1c-platform-tools.vrunner 1c-platform-tools.paths...` | `1c-platform-tools.settings.openTools`    |
+| Проекты     | панель «Проекты 1С», walkthrough                 | `@ext:yellow-hammer.1c-platform-tools 1c-platform-tools.projects`                           | `1c-platform-tools.projects.openSettings` |
+| Список дел  | панель «Список дел»                              | `@ext:yellow-hammer.1c-platform-tools 1c-platform-tools.todo`                               | `1c-platform-tools.settings.openTodo`     |
+| Общее       | —                                                | `@ext:yellow-hammer.1c-platform-tools`                                                      | `1c-platform-tools.settings.openGeneral`  |
 
 Правила для новых панелей и настроек:
 
-1. **Кнопка «Настройка»** — должна открывать не общие настройки, а настройки, релевантные контексту. Например: из пустого избранного → `projects.openSettings` (baseFolders, ignorePatterns); из панели инструментов → `settings.openTools` или QuickPick.
-2. **Главная команда `1c-platform-tools.settings`** — показывает QuickPick: Проекты | Инструменты | Общее.
+1. **Кнопка «Настройки»** — открывает настройки, релевантные контексту: из панели «Инструменты 1С» → `settings.openTools` (группа «Инструменты»); из панели «Проекты 1С» → `projects.openSettings` (группа «Проекты»); из панели «Список дел» → `settings.openTodo` (группа «Список дел»). Команда `settings` показывает QuickPick: Проекты | Инструменты | Список дел | Общее.
+2. **Главная команда `1c-platform-tools.settings`** — показывает QuickPick с выбором раздела: Проекты | Инструменты | Общее.
 3. Всегда добавлять фильтр по расширению `@ext:yellow-hammer.1c-platform-tools` при открытии настроек, чтобы отображались только параметры нашего расширения.
 
 ## Документация

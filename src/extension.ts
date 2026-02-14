@@ -356,8 +356,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	const settingsCommand = vscode.commands.registerCommand('1c-platform-tools.settings', async () => {
 		const choice = await vscode.window.showQuickPick(
 			[
+				{ label: '$(tools) Инструменты', detail: 'vrunner, пути, docker, allure', filter: '1c-platform-tools' },
 				{ label: '$(folder-opened) Проекты', detail: 'baseFolders, исключения, избранное', filter: '1c-platform-tools.projects' },
-				{ label: '$(tools) Инструменты', detail: 'пути, vrunner, allure, docker', filter: '1c-platform-tools.paths 1c-platform-tools.vrunner' },
+				{ label: '$(checklist) Список дел', detail: 'паттерны, исключения, теги', filter: '1c-platform-tools.todo' },
 				{ label: '$(settings-gear) Общее', detail: 'все настройки расширения', filter: '' },
 			],
 			{ placeHolder: 'Раздел настроек' }
@@ -374,7 +375,10 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.projects`)
 	);
 	vscode.commands.registerCommand('1c-platform-tools.settings.openTools', () =>
-		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.paths 1c-platform-tools.vrunner`)
+		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.vrunner`)
+	);
+	vscode.commands.registerCommand('1c-platform-tools.settings.openTodo', () =>
+		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.todo`)
 	);
 	vscode.commands.registerCommand('1c-platform-tools.settings.openGeneral', () =>
 		vscode.commands.executeCommand('workbench.action.openSettings', SETTINGS_EXT)
