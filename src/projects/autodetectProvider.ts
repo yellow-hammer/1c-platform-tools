@@ -1,6 +1,5 @@
 /**
- * TreeDataProvider для «Все проекты» (автообнаружение по packagedef).
- * Сортировка как в PM: Saved, Name, Path, Recent.
+ * TreeDataProvider для вкладки «Все проекты» (автообнаружение по packagedef).
  */
 
 import * as path from 'node:path';

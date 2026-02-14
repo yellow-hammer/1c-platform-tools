@@ -1,56 +1,49 @@
 /**
- * Сортировка проектов (по образцу Project Manager).
+ * Сортировка списка проектов для отображения.
  */
 
 import * as vscode from 'vscode';
 import type { ProjectsStack } from './stack';
 
-interface QuickPickItemLike {
-	label: string;
-	description: string;
+type ListItem = { label: string; description: string };
+
+function byLabel(a: ListItem, b: ListItem): number {
+	return (a.label ?? '').toLowerCase().localeCompare((b.label ?? '').toLowerCase(), undefined, {
+		sensitivity: 'base',
+	});
 }
 
-function sortByName(items: QuickPickItemLike[]): QuickPickItemLike[] {
-	return [...items].sort((a, b) =>
-		a.label.toLowerCase().localeCompare(b.label.toLowerCase(), undefined, { sensitivity: 'base' })
-	);
+function byPath(a: ListItem, b: ListItem): number {
+	return (a.description ?? '').toLowerCase().localeCompare((b.description ?? '').toLowerCase(), undefined, {
+		sensitivity: 'base',
+	});
 }
 
-function sortByPath(items: QuickPickItemLike[]): QuickPickItemLike[] {
-	return [...items].sort((a, b) =>
-		(a.description ?? '').toLowerCase().localeCompare((b.description ?? '').toLowerCase(), undefined, {
-			sensitivity: 'base',
-		})
-	);
-}
-
-function sortByRecent(items: QuickPickItemLike[], stack: ProjectsStack): QuickPickItemLike[] {
-	if (stack.length() === 0) {
-		return items;
+/** Сортировка по «недавним»: элементы из recent-списка выводятся впереди в его порядке. */
+function byRecentOrder(items: ListItem[], recent: ProjectsStack): ListItem[] {
+	const order = new Map<string, number>();
+	let idx = 0;
+	for (let i = 0; i < recent.size(); i++) {
+		const name = recent.at(i);
+		if (name && !order.has(name)) order.set(name, idx++);
 	}
-	const result = [...items];
-	for (let i = 0; i < stack.length(); i++) {
-		const name = stack.getItem(i);
-		const found = result.findIndex((item) => item.label === name);
-		if (found >= 0) {
-			const [removed] = result.splice(found, 1);
-			result.unshift(removed);
-		}
+	const head: ListItem[] = [];
+	const tail: ListItem[] = [];
+	for (const it of items) {
+		const pos = order.get(it.label);
+		if (pos !== undefined) head.push(it);
+		else tail.push(it);
 	}
-	return result;
+	head.sort((a, b) => (order.get(a.label) ?? 0) - (order.get(b.label) ?? 0));
+	return [...head, ...tail];
 }
 
-export function sortProjects(items: QuickPickItemLike[], stack: ProjectsStack): QuickPickItemLike[] {
-	const config = vscode.workspace.getConfiguration('1c-platform-tools');
-	const criteria = config.get<'Saved' | 'Name' | 'Path' | 'Recent'>('projects.sortList', 'Name');
-	switch (criteria) {
-		case 'Path':
-			return sortByPath(items);
-		case 'Saved':
-			return items;
-		case 'Recent':
-			return sortByRecent(items, stack);
-		default:
-			return sortByName(items);
-	}
+export function sortProjects(items: ListItem[], recent: ProjectsStack): ListItem[] {
+	const cfg = vscode.workspace.getConfiguration('1c-platform-tools');
+	const mode = cfg.get<string>('projects.sortList', 'Name');
+	const copy = [...items];
+	if (mode === 'Path') return copy.sort(byPath);
+	if (mode === 'Saved') return copy;
+	if (mode === 'Recent') return byRecentOrder(copy, recent);
+	return copy.sort(byLabel);
 }

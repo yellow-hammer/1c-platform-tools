@@ -1,5 +1,5 @@
 /**
- * Узлы дерева проектов (по образцу Project Manager).
+ * Узлы дерева проектов.
  */
 
 import * as path from 'node:path';
@@ -26,11 +26,9 @@ export class ProjectNode extends TreeItem {
 		this.contextValue = 'ProjectNodeKind';
 		this.iconPath = new ThemeIcon('folder');
 		this.resourceUri = Uri.from({ scheme: VIEW_SCHEME, path: preview.path });
-		// Как в PM: родительский путь только при дубликатах имён
 		this.description = preview.detail;
 		this.command = command;
 
-		// Tooltip как в PM: имя, путь, доп. информация (теги при наличии)
 		const md = new MarkdownString(undefined, true);
 		md.appendMarkdown(`${label}\n\n`);
 		md.appendMarkdown(`_${preview.path}_\n\n`);

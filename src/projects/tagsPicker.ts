@@ -1,9 +1,9 @@
 /**
- * Выбор тегов для проектов (по образцу Project Manager).
+ * Выбор тегов для проектов.
  */
 
 import * as vscode from 'vscode';
-import { NO_TAGS_DEFINED } from './constants';
+import { UNTAGGED_LABEL } from './constants';
 import type { ProjectStorage } from './storage';
 
 export interface PickTagOptions {
@@ -35,7 +35,7 @@ export async function pickTags(
 
 	const refreshItems = (): void => {
 		let tags = storage.getAvailableTags();
-		tags = [...new Set([...tags, ...currentPreselected.filter((t) => !tags.includes(t) && t !== NO_TAGS_DEFINED)])];
+		tags = [...new Set([...tags, ...currentPreselected.filter((t) => !tags.includes(t) && t !== UNTAGGED_LABEL)])];
 
 		if (options?.useDefaultTags) {
 			for (const tag of defaultTags) {
@@ -51,7 +51,7 @@ export async function pickTags(
 
 		tags.sort();
 		if (options?.useNoTagsDefined) {
-			tags.push(NO_TAGS_DEFINED);
+			tags.push(UNTAGGED_LABEL);
 		}
 
 		quickPick.items = tags.map((tag) => ({ label: tag }));
@@ -102,7 +102,7 @@ export async function pickTags(
 			const newTags = input
 				.split(',')
 				.map((t) => t.trim())
-				.filter((t) => t.length > 0 && t !== NO_TAGS_DEFINED);
+				.filter((t) => t.length > 0 && t !== UNTAGGED_LABEL);
 
 			if (newTags.length === 0) {
 				quickPick.show();

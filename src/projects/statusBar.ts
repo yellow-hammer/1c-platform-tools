@@ -1,5 +1,5 @@
 /**
- * Status Bar — текущий проект (по образцу Project Manager).
+ * Status Bar — текущий проект.
  */
 
 import * as path from 'node:path';

@@ -1,6 +1,5 @@
 /**
- * Утилиты путей для списка проектов (по образцу Project Manager).
- * expandHomePath, expandWithGlobPatterns, нормализация разделителей.
+ * Утилиты путей для списка проектов: expandHomePath, expandWithGlobPatterns, нормализация разделителей.
  */
 
 import * as fs from 'node:fs';

@@ -1,5 +1,5 @@
 /**
- * Утилиты путей для projects.json (по образцу Project Manager).
+ * Утилиты путей для projects.json.
  */
 
 import * as os from 'node:os';
@@ -11,7 +11,7 @@ const HOME_VAR = '$home';
 const HOME_TILDE = '~';
 
 /**
- * Путь к projects.json. projectsLocation — папка (как в PM); при пустом — globalStorage расширения.
+ * Путь к projects.json. projectsLocation — папка; при пустом — globalStorage расширения.
  */
 export function getProjectsFilePath(projectsLocation: string, context: vscode.ExtensionContext): string {
 	if (projectsLocation && projectsLocation.trim() !== '') {

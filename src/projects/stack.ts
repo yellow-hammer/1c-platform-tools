@@ -1,62 +1,75 @@
 /**
- * Стек недавно открытых проектов (по образцу Project Manager).
+ * Список недавно открытых проектов (по порядку использования).
  */
 
+const STORAGE_KEY = '1c-platform-tools.projects.recent';
+const MAX_ITEMS = 10;
+
 export class ProjectsStack {
-	private items: string[] = [];
-	private readonly maxSize = 10;
-	private readonly key = '1c-platform-tools.projects.recent';
+	private recent: string[] = [];
 
 	constructor(
-		private readonly getStored: (key: string) => string | undefined,
-		private readonly setStored: (key: string, value: string) => Thenable<void>
+		private readonly read: (key: string) => string | undefined,
+		private readonly write: (key: string, value: string) => Thenable<void>
 	) {
-		const raw = getStored(this.key);
-		if (raw) {
+		const stored = read(STORAGE_KEY);
+		if (stored) {
 			try {
-				this.items = JSON.parse(raw);
-				if (!Array.isArray(this.items)) {
-					this.items = [];
-				}
+				const parsed = JSON.parse(stored);
+				this.recent = Array.isArray(parsed) ? parsed : [];
 			} catch {
-				this.items = [];
+				this.recent = [];
 			}
 		}
 	}
 
-	push(name: string): void {
-		const idx = this.items.indexOf(name);
-		if (idx >= 0) {
-			this.items.splice(idx, 1);
+	/** Добавляет проект в начало списка недавних. */
+	addRecent(name: string): void {
+		const idx = this.recent.indexOf(name);
+		if (idx >= 0) this.recent.splice(idx, 1);
+		this.recent.unshift(name);
+		if (this.recent.length > MAX_ITEMS) {
+			this.recent = this.recent.slice(0, MAX_ITEMS);
 		}
-		this.items.unshift(name);
-		if (this.items.length > this.maxSize) {
-			this.items = this.items.slice(0, this.maxSize);
-		}
-		void this.setStored(this.key, JSON.stringify(this.items));
+		void this.write(STORAGE_KEY, JSON.stringify(this.recent));
 	}
 
-	pop(name: string): void {
-		const idx = this.items.indexOf(name);
+	remove(name: string): void {
+		const idx = this.recent.indexOf(name);
 		if (idx >= 0) {
-			this.items.splice(idx, 1);
-			void this.setStored(this.key, JSON.stringify(this.items));
+			this.recent.splice(idx, 1);
+			void this.write(STORAGE_KEY, JSON.stringify(this.recent));
 		}
 	}
 
 	rename(oldName: string, newName: string): void {
-		const idx = this.items.indexOf(oldName);
+		const idx = this.recent.indexOf(oldName);
 		if (idx >= 0) {
-			this.items[idx] = newName;
-			void this.setStored(this.key, JSON.stringify(this.items));
+			this.recent[idx] = newName;
+			void this.write(STORAGE_KEY, JSON.stringify(this.recent));
 		}
 	}
 
-	length(): number {
-		return this.items.length;
+	size(): number {
+		return this.recent.length;
 	}
 
+	/** Элемент по индексу (0 — самый недавний). */
+	at(index: number): string {
+		return this.recent[index] ?? '';
+	}
+
+	// Обратная совместимость
+	push(name: string): void {
+		this.addRecent(name);
+	}
+	pop(name: string): void {
+		this.remove(name);
+	}
+	length(): number {
+		return this.size();
+	}
 	getItem(index: number): string {
-		return this.items[index] ?? '';
+		return this.at(index);
 	}
 }

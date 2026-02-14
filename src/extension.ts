@@ -279,7 +279,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	registerGetStarted(context);
 	showGetStartedOnFirstRun(context);
 
-	// Панель «Проекты 1С» — по образцу Project Manager: избранное (projects.json) + автообнаружение
+	// Панель «Проекты 1С»: избранное (projects.json) + автообнаружение
 	const oneCLocator = new OneCLocator(context);
 	const config = vscode.workspace.getConfiguration('1c-platform-tools');
 	const projectsLocation = config.get<string>('projects.projectsLocation', '');

@@ -1,5 +1,5 @@
 /**
- * Модуль «Проекты 1С» — по образцу Project Manager.
+ * Модуль «Проекты 1С»: избранное, автообнаружение, быстрый выбор.
  */
 
 export { ProjectStorage } from './storage';
@@ -11,6 +11,6 @@ export { pickProjects, openPickedProject, canSwitchOnActiveWindow } from './proj
 export { pickTags } from './tagsPicker';
 export { showStatusBar, updateStatusBar } from './statusBar';
 export { getProjectsFilePath, expandHomePath, normalizePath } from './pathUtils';
-export { NO_TAGS_DEFINED, CommandLocation } from './constants';
+export { NO_TAGS_DEFINED, InvocationSource } from './constants';
 export type { Project } from './project';
 export type { PickedProject, PickedResult } from './projectsPicker';

@@ -1,6 +1,5 @@
 /**
- * Модель проекта (по образцу Project Manager).
- * Profile не используется — только name, rootPath, tags, enabled.
+ * Модель проекта. Profile не используется — только name, rootPath, tags, enabled.
  */
 
 export interface Project {

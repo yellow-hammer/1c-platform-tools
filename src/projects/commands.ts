@@ -18,7 +18,7 @@ import {
 	showStatusBar,
 	updateStatusBar,
 	StorageProvider,
-	CommandLocation,
+	InvocationSource,
 } from './index';
 
 export function registerProjectsCommands(
@@ -52,7 +52,7 @@ export function registerProjectsCommands(
 				if (!projectPath) {
 					return;
 				}
-				if (!(await import('./projectsPicker.js').then((m) => m.canSwitchOnActiveWindow(CommandLocation.SideBar)))) {
+				if (!(await import('./projectsPicker.js').then((m) => m.canSwitchOnActiveWindow(InvocationSource.SideBar)))) {
 					return;
 				}
 				stack.push(projectName);
@@ -83,7 +83,7 @@ export function registerProjectsCommands(
 				stack.push(projectName);
 				const uri = vscode.Uri.file(expandHomePath(projectPath));
 				const { shouldOpenInNewWindow } = await import('./projectsPicker.js');
-				const openNew = shouldOpenInNewWindow(true, CommandLocation.SideBar);
+				const openNew = shouldOpenInNewWindow(true, InvocationSource.SideBar);
 				await vscode.commands.executeCommand('vscode.openFolder', uri, { forceNewWindow: openNew });
 			}
 		)
@@ -103,14 +103,14 @@ export function registerProjectsCommands(
 				projectStorage,
 				locator,
 				false,
-				CommandLocation.CommandPalette,
+				InvocationSource.Palette,
 				stack,
 				context
 			);
 			await openPickedProject(
 				pick ? { item: pick.item, openInNewWindow: pick.openInNewWindow } : undefined,
 				false,
-				CommandLocation.CommandPalette,
+				InvocationSource.Palette,
 				stack,
 				context
 			);
@@ -124,14 +124,14 @@ export function registerProjectsCommands(
 				projectStorage,
 				locator,
 				true,
-				CommandLocation.CommandPalette,
+				InvocationSource.Palette,
 				stack,
 				context
 			);
 			await openPickedProject(
 				pick ? { item: pick.item, openInNewWindow: pick.openInNewWindow } : undefined,
 				true,
-				CommandLocation.CommandPalette,
+				InvocationSource.Palette,
 				stack,
 				context
 			);
@@ -290,7 +290,7 @@ export function registerProjectsCommands(
 				const count = vscode.workspace.workspaceFolders?.length ?? 0;
 				void vscode.workspace.updateWorkspaceFolders(count, 0, { uri });
 			} else {
-				void pickProjects(projectStorage, locator, false, CommandLocation.SideBar, stack, context).then(
+				void pickProjects(projectStorage, locator, false, InvocationSource.SideBar, stack, context).then(
 					async (pick) => {
 						if (pick) {
 							const uri = vscode.Uri.file(expandHomePath(pick.item.rootPath));
