@@ -375,7 +375,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.projects`)
 	);
 	vscode.commands.registerCommand('1c-platform-tools.settings.openTools', () =>
-		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.vrunner`)
+		vscode.commands.executeCommand('workbench.action.openSettings', SETTINGS_EXT)
 	);
 	vscode.commands.registerCommand('1c-platform-tools.settings.openTodo', () =>
 		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.todo`)
