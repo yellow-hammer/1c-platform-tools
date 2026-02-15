@@ -399,7 +399,7 @@ export class DependenciesCommands extends BaseCommand {
 		if (!extensionPath) {
 			const msg = 'Не удалось определить путь к расширению';
 			logger.error(
-				`${msg}. Возможные причины: расширение не передало ExtensionContext в VRunnerManager при активации; workspaceRoot=${workspaceRoot ?? 'не определён'}. Проверьте панель Output (1C Platform Tools) для диагностики.`
+				`${msg}. Возможные причины: расширение не передало ExtensionContext в VRunnerManager при активации; workspaceRoot=${workspaceRoot ?? 'не определён'}. Проверьте панель Output (1C: Platform tools) для диагностики.`
 			);
 			logger.show();
 			vscode.window.showErrorMessage(msg);
@@ -428,7 +428,7 @@ export class DependenciesCommands extends BaseCommand {
 			logger.info(`Файл packagedef успешно создан: ${packagedefPath}`);
 			vscode.window.showInformationMessage('Файл packagedef успешно создан');
 
-			// Полная активация расширения: панель 1C Platform Tools и дерево появятся без перезагрузки окна
+			// Полная активация расширения: панель «Инструменты 1С» и дерево появятся без перезагрузки окна
 			notifyProjectCreated();
 
 			// Открываем файл в редакторе

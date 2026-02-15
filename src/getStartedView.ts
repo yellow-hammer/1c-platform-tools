@@ -8,9 +8,7 @@ const WELCOMED_KEY = '1c-platform-tools.getStarted.welcomed';
 
 const WALKTHROUGH_ID = 'yellow-hammer.1c-platform-tools#1c-platform-tools.getStarted';
 
-/**
- * Открывает пошаговое руководство «Начало работы с 1C Platform Tools» в панели приветствия.
- */
+/** Открывает пошаговое руководство «Начало работы» в панели приветствия */
 export function openGetStartedWalkthrough(): void {
 	void vscode.commands.executeCommand('workbench.action.openWalkthrough', WALKTHROUGH_ID);
 }

@@ -14,9 +14,7 @@ import { TREE_GROUPS } from './treeStructure';
 /** Ключ в globalState для сохранения состояния раскрытия групп дерева (кроме «Избранное») */
 export const TREE_GROUP_EXPANDED_STATE_KEY = '1c-platform-tools.treeGroupExpanded';
 
-/**
- * Типы элементов дерева команд в панели 1C Platform Tools
- */
+/** Типы элементов дерева команд */
 export enum TreeItemType {
 	Task = 'task',
 	Dependency = 'dependency',
@@ -42,9 +40,7 @@ export enum TreeItemType {
 	FavoritesConfigure = 'favoritesConfigure',
 }
 
-/**
- * Элемент дерева для 1C Platform Tools
- */
+/** Элемент дерева команд */
 export class PlatformTreeItem extends vscode.TreeItem {
 	/** Тип для отображения иконки (если задан — используется вместо type) */
 	private readonly preferredIconType?: TreeItemType;
@@ -133,9 +129,7 @@ export class PlatformTreeItem extends vscode.TreeItem {
  */
 type TreeDataChangeEvent = PlatformTreeItem | undefined | null | void;
 
-/**
- * Провайдер данных для дерева 1C Platform Tools
- */
+/** Провайдер данных дерева команд */
 export class PlatformTreeDataProvider implements vscode.TreeDataProvider<PlatformTreeItem> {
 	private readonly _onDidChangeTreeData: vscode.EventEmitter<TreeDataChangeEvent> =
 		new vscode.EventEmitter<TreeDataChangeEvent>();

@@ -1,6 +1,6 @@
 {
   "name": "1c-platform-tools",
-  "displayName": "1C:Platform Tools",
+  "displayName": "1C: Platform tools",
   "description": "Расширение для Visual Studio Code с инструментами разработки для экосистемы 1C. Предоставляет удобный интерфейс для работы с проектами 1C, включая разбор обработок, отчетов и конфигураций.",
   "keywords": [
     "1c",
@@ -941,7 +941,7 @@
     "walkthroughs": [
       {
         "id": "1c-platform-tools.getStarted",
-        "title": "Начало работы с 1C Platform Tools",
+        "title": "Начало работы с 1C: Platform tools",
         "description": "Четыре шага: создать или открыть проект, настроить поиск проектов, установить зависимости, освоить панель команд.",
         "icon": "resources/1c-icon.png",
         "steps": [
@@ -966,7 +966,7 @@
           {
             "id": "step4-commands-panel",
             "title": "Панель с командами для работы с проектом",
-            "description": "После открытия проекта 1С на боковой панели появится «1C Platform Tools»: дерево проекта, избранное, список дел. Команды доступны из палитры (Ctrl+Shift+P) по запросу «1C».\n\n[С чего начать?](command:1c-platform-tools.getStarted.open)\n[Настроить избранное](command:1c-platform-tools.favorites.configure)",
+            "description": "После открытия проекта 1С на боковой панели появится «1C: Platform tools»: дерево проекта, избранное, список дел. Команды доступны из палитры (Ctrl+Shift+P) по запросу «1C».\n\n[С чего начать?](command:1c-platform-tools.getStarted.open)\n[Настроить избранное](command:1c-platform-tools.favorites.configure)",
             "media": { "markdown": "walkthrough/step4-commands-panel.md" }
           }
         ]
