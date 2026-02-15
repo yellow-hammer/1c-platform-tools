@@ -31,5 +31,3 @@ export function showGetStartedOnFirstRun(context: vscode.ExtensionContext): void
 	void context.globalState.update(WELCOMED_KEY, true);
 	setImmediate(() => openGetStartedWalkthrough());
 }
-
-export const GET_STARTED_OPEN_COMMAND = '1c-platform-tools.getStarted.open';

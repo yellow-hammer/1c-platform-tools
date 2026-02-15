@@ -9,14 +9,12 @@
 1. **Один общий скриншот** — замените файл `placeholder.svg` на свой рисунок (или переименуйте в `placeholder.png` и обновите ссылки в `walkthrough/*.md` на `walkthrough/images/placeholder.png`).
 
 2. **Отдельный скриншот для каждого шага** — добавьте файлы:
-   - `init-packagedef.png` — Инициализировать проект
-   - `init-structure.png` — Инициализировать структуру проекта
-   - `setup-git.png` — Настроить Git
-   - `install-oscript.png` — Установить OneScript
-   - `install-opm.png` — Установить OPM
-   - `install-deps.png` — Установить зависимости  
+   - `step1-create-open.png` — Создайте или откройте проект
+   - `step2-auto-detect.png` — Автоматическое определение проектов
+   - `step3-dependencies.png` — Установите зависимости
+   - `step4-commands-panel.png` — Панель с командами
 
-   Затем в соответствующих файлах `walkthrough/*.md` замените `walkthrough/images/placeholder.svg` на `walkthrough/images/имя-файла.png`.
+   Затем в соответствующих файлах `walkthrough/step*.md` замените `walkthrough/images/placeholder.svg` на `walkthrough/images/имя-файла.png`.
 
 Рекомендуемая ширина скриншота: 600–800 px (высота по содержимому).
 
