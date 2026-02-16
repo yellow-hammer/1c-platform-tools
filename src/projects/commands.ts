@@ -19,6 +19,8 @@ import {
 	pickTags,
 	showStatusBar,
 	updateStatusBar,
+	canSwitchOnActiveWindow,
+	shouldOpenInNewWindow,
 	InvocationSource,
 } from './index';
 
@@ -62,7 +64,7 @@ export function registerProjectsCommands(
 				if (!projectPath) {
 					return;
 				}
-				if (!(await import('./projectsPicker.js').then((m) => m.canSwitchOnActiveWindow(InvocationSource.SideBar)))) {
+				if (!(await canSwitchOnActiveWindow(InvocationSource.SideBar))) {
 					return;
 				}
 				stack.push(projectName);
@@ -92,7 +94,6 @@ export function registerProjectsCommands(
 				}
 				stack.push(projectName);
 				const uri = vscode.Uri.file(expandHomePath(projectPath));
-				const { shouldOpenInNewWindow } = await import('./projectsPicker.js');
 				const openNew = shouldOpenInNewWindow(true, InvocationSource.SideBar);
 				await vscode.commands.executeCommand('vscode.openFolder', uri, { forceNewWindow: openNew });
 			}

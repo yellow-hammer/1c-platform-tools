@@ -48,7 +48,8 @@
     "onView:1c-platform-tools-projects-favorites",
     "onView:1c-platform-tools-projects-all",
     "onView:1c-platform-tools-projects-help",
-    "onCommand:1c-platform-tools.projects.listOpen"
+    "onCommand:1c-platform-tools.projects.listOpen",
+    "onCommand:1c-platform-tools.projects.openSettings"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -1275,8 +1276,8 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
+    "compile": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test",
@@ -1290,12 +1291,13 @@
     "minimatch": "^3.0.4"
   },
   "devDependencies": {
+    "@types/minimatch": "^3.0.5",
     "@types/node": "22.x",
     "@types/vscode": "^1.103.0",
     "@vscode/test-cli": "^0.0.11",
     "@vscode/test-electron": "^2.5.2",
-    "@types/minimatch": "^3.0.5",
     "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.27.3",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.1"

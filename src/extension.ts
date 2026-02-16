@@ -316,22 +316,14 @@ export async function activate(context: vscode.ExtensionContext) {
 		);
 	});
 
-	// Панель «Проекты 1С»: загрузка данных и подписки
-	await providers.showTreeViews();
-
+	// Сначала регистрируем представление «Помощь и поддержка» и команды проектов, чтобы при сбое showTreeViews()
+	// (например в упакованном расширении) панель и команды уже были доступны и не было «command not found» / «нет поставщика данных».
 	const helpAndSupportProvider = new HelpAndSupportProvider();
 	const helpAndSupportTreeView = vscode.window.createTreeView('1c-platform-tools-projects-help', {
 		treeDataProvider: helpAndSupportProvider,
 		showCollapseAll: false,
 	});
 	context.subscriptions.push(helpAndSupportTreeView);
-	registerProjectsDecoration(context);
-	showStatusBar(projectStorage, oneCLocator);
-	context.subscriptions.push(
-		vscode.workspace.onDidChangeWorkspaceFolders(() => {
-			showStatusBar(projectStorage, oneCLocator);
-		})
-	);
 	const projectsCommandDisposables = registerProjectsCommands(
 		context,
 		projectStorage,
@@ -339,6 +331,21 @@ export async function activate(context: vscode.ExtensionContext) {
 		providers,
 		stack
 	);
+	registerProjectsDecoration(context);
+	showStatusBar(projectStorage, oneCLocator);
+	context.subscriptions.push(
+		vscode.workspace.onDidChangeWorkspaceFolders(() => {
+			showStatusBar(projectStorage, oneCLocator);
+		})
+	);
+
+	// Панель «Проекты 1С»: загрузка данных (локация проектов). Не даём сбою здесь прервать активацию.
+	try {
+		await providers.showTreeViews();
+	} catch (err) {
+		logger.error(`Ошибка при загрузке списка проектов 1С: ${String(err)}`);
+	}
+
 	try {
 		fs.watch(path.dirname(projectFilePath), (_, filename) => {
 			if (filename === 'projects.json') {

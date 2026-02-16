@@ -27,6 +27,7 @@ vsc-extension-quickstart.md
 
 # Сборка и зависимости
 **/node_modules/**
+**/esbuild.config.mjs
 build/**
 **/build/**
 
