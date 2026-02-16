@@ -1,0 +1,34 @@
+---
+description: Fallback «С чего начать» для Cursor — Webview вместо walkthrough
+globs: src/getStartedView.ts
+alwaysApply: false
+---
+
+# Get Started: fallback для Cursor
+
+В Cursor команда `workbench.action.openWalkthrough` не работает: она ссылается на `walkThrough://vscode_getting_started_page`, которого нет в Cursor (форк VS Code с другим приветствием).
+
+## Решение
+
+**Источник:** `src/getStartedView.ts`
+
+- **Определение Cursor:** `vscode.env.appName.toLowerCase().includes('cursor')`
+- **Fallback:** Webview с двухколоночным layout — слева контент и кнопки, справа скриншот/медиа (не теряется при прокрутке)
+- **VS Code:** без изменений — `workbench.action.openWalkthrough` с ID `yellow-hammer.1c-platform-tools#1c-platform-tools.getStarted`
+
+## Layout Webview (Cursor)
+
+| Левая колонка                          | Правая колонка (фиксированная)                       |
+|----------------------------------------|------------------------------------------------------|
+| Список шагов (кликабельный)            | Скриншот текущего шага                               |
+| Заголовок, описание, расширенный текст | `walkthrough/images/stepN.svg` или `placeholder.svg` |
+| Кнопки команд                          |                                                      |
+
+Правая часть всегда видна, скриншот меняется при выборе шага.
+
+## Динамическая загрузка (без дублирования)
+
+- **package.json** `walkthroughs[0]` — единый источник: title, description, steps (title, description, media.markdown)
+- **walkthrough/*.md** — расширенный контент и путь к скриншоту (`![Alt](images/xxx.svg)`)
+
+При добавлении шага достаточно обновить package.json и создать walkthrough/stepN-*.md. Cursor fallback подхватит данные автоматически.
