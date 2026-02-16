@@ -34,9 +34,13 @@ function parseCommandsFromDescription(description: string): Array<[string, strin
 	const len = description.length;
 	while (i < len) {
 		const openBracket = description.indexOf('[', i);
-		if (openBracket === -1) break;
+		if (openBracket === -1) {
+			break;
+		}
 		const closeBracket = description.indexOf(']', openBracket + 1);
-		if (closeBracket === -1) break;
+		if (closeBracket === -1) {
+			break;
+		}
 		const cmdPrefixIdx = description.indexOf(CMD_PREFIX, closeBracket);
 		if (cmdPrefixIdx !== closeBracket) {
 			i = closeBracket + 1;
@@ -44,7 +48,9 @@ function parseCommandsFromDescription(description: string): Array<[string, strin
 		}
 		const cmdValueStart = cmdPrefixIdx + CMD_PREFIX.length;
 		const closeParen = description.indexOf(')', cmdValueStart);
-		if (closeParen === -1) break;
+		if (closeParen === -1) {
+			break;
+		}
 		const label = description.slice(openBracket + 1, closeBracket).trim();
 		const cmd = description.slice(cmdValueStart, closeParen).trim();
 		commands.push([label, cmd]);
