@@ -11,6 +11,7 @@ import { RunCommands } from './runCommands';
 import { TestCommands } from './testCommands';
 import { SetVersionCommands } from './setVersionCommands';
 import { WorkspaceTasksCommands } from './workspaceTasksCommands';
+import { SkillsCommands } from './skillsCommands';
 import { VRunnerManager } from '../vrunnerManager';
 
 /**
@@ -27,6 +28,7 @@ interface Commands {
 	test: TestCommands;
 	setVersion: SetVersionCommands;
 	workspaceTasks: WorkspaceTasksCommands;
+	skills: SkillsCommands;
 }
 
 /**
@@ -41,6 +43,14 @@ export function registerCommands(
 	commands: Commands
 ): vscode.Disposable[] {
 	const disposables: vscode.Disposable[] = [];
+
+	// Команды навыков для AI
+	const skillsCommands = [
+		vscode.commands.registerCommand('1c-platform-tools.skills.add', () => {
+			void commands.skills.addSkill(context);
+		}),
+	];
+	disposables.push(...skillsCommands);
 
 	// Команды информационных баз
 	const infobaseCommands = [

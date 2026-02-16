@@ -52,7 +52,8 @@ import {
 	getCreateTemplateListFileCommandName,
 	getCreateDeliveryDescriptionFileCommandName,
 	getCreateDistributivePackageCommandName,
-	getCreateDistributionFilesCommandName
+	getCreateDistributionFilesCommandName,
+	getAddSkillForAgentCommandName
 } from './commandNames';
 
 /** Элемент команды в группе (одна строка в дереве и в списке избранного) */
@@ -208,6 +209,14 @@ export const TREE_GROUPS: TreeGroup[] = [
 		commands: [
 			{ command: '1c-platform-tools.config.env.edit', title: 'Открыть env.json', treeLabel: '📄 env.json' },
 			{ command: '1c-platform-tools.launch.editConfigurations', title: 'Открыть launch.json', treeLabel: '📄 launch.json' },
+		],
+	},
+	{
+		groupLabel: 'Навыки для AI',
+		sectionType: 'skills',
+		defaultCollapsibleState: 'collapsed',
+		commands: [
+			{ command: '1c-platform-tools.skills.add', title: getAddSkillForAgentCommandName().title, treeLabel: '🤖 Добавить' },
 		],
 	},
 	{

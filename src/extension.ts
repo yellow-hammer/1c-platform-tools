@@ -17,6 +17,7 @@ import { TestCommands } from './commands/testCommands';
 import { SetVersionCommands } from './commands/setVersionCommands';
 import { WorkspaceTasksCommands } from './commands/workspaceTasksCommands';
 import { OscriptTasksCommands } from './commands/oscriptTasksCommands';
+import { SkillsCommands } from './commands/skillsCommands';
 import { registerCommands } from './commands/commandRegistry';
 import { VRunnerManager } from './vrunnerManager';
 import { logger } from './logger';
@@ -41,6 +42,7 @@ import {
 import { HelpAndSupportProvider } from './projects/helpAndSupportProvider';
 import { registerProjectsDecoration } from './projects/decoration';
 import { registerProjectsCommands } from './projects/commands';
+import { registerRunCommandFileWatcher } from './runCommandFromFileWatcher';
 
 /** Элемент QuickPick для настройки избранного (с полями команды и группы) */
 type FavoritesSelectableItem = vscode.QuickPickItem & {
@@ -243,6 +245,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		setVersion: new SetVersionCommands(),
 		oscriptTasks: new OscriptTasksCommands(),
 		workspaceTasks: new WorkspaceTasksCommands(),
+		skills: new SkillsCommands(),
 	};
 
 	const commandDisposables = registerCommands(context, commands);
@@ -332,6 +335,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			showStatusBar(projectStorage, oneCLocator);
 		})
 	);
+	registerRunCommandFileWatcher(context);
 	const projectsCommandDisposables = registerProjectsCommands(
 		context,
 		projectStorage,

@@ -139,6 +139,16 @@ export function getInitializeProjectStructureCommandName(): CommandNameAndTitle 
 }
 
 /**
+ * Получить название и заголовок для команды добавления навыка для AI-агента
+ */
+export function getAddSkillForAgentCommandName(): CommandNameAndTitle {
+	return {
+		name: 'Добавить',
+		title: 'Добавить'
+	};
+}
+
+/**
  * Получить название и заголовок для команды установки OPM
  */
 export function getUpdateOpmCommandName(): CommandNameAndTitle {

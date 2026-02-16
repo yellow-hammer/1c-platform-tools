@@ -365,6 +365,11 @@
         "category": "1C: Зависимости"
       },
       {
+        "command": "1c-platform-tools.skills.add",
+        "title": "Добавить",
+        "category": "1C: Навыки для AI"
+      },
+      {
         "command": "1c-platform-tools.build.configuration",
         "title": "Собрать конфигурацию",
         "category": "1C: Конфигурация"
@@ -961,7 +966,7 @@
       {
         "id": "1c-platform-tools.getStarted",
         "title": "Начало работы с 1C: Platform tools",
-        "description": "Шесть шагов: проект, зависимости, панель команд, служебные файлы, панель проектов, список дел.",
+        "description": "Семь шагов: проект, зависимости, панель команд, служебные файлы, панель проектов, список дел, интеграция с AI и MCP.",
         "icon": "resources/1c-icon.png",
         "steps": [
           {
@@ -999,6 +1004,12 @@
             "title": "Список дел",
             "description": "Панель собирает TODO и FIXME по проекту. Фильтры и группировка помогают найти нужные пометки.\n\n[Открыть список дел](command:1c-platform-tools.todo.showPanel)\n[Настройки списка дел](command:1c-platform-tools.settings.openTodo)",
             "media": { "markdown": "walkthrough/step6-todo-list.md" }
+          },
+          {
+            "id": "step7-ai-mcp",
+            "title": "Интеграция с AI и MCP",
+            "description": "Навык для агента и MCP-сервер: агент (Cursor, Claude, Copilot) сможет предлагать и выполнять команды расширения.\n\n[Добавить навык для AI](command:1c-platform-tools.skills.add)\n[Открыть панель «Инструменты 1С»](command:workbench.view.extension.1c-platform-tools)",
+            "media": { "markdown": "walkthrough/step7-ai-mcp.md" }
           }
         ]
       }

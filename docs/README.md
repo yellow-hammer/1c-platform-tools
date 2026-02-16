@@ -15,6 +15,9 @@
 - **[Настройка CI/CD](CI_CD_SETUP.md)**  
   Пошаговая инструкция по настройке автоматической сборки и публикации расширения в VS Code Marketplace через GitHub Actions.
 
+- **[Проектирование: навык для AI-агентов](design-ai-agent-skill.md)**  
+  Предложение по реализации Issue #56: добавление навыков (Agent Skills) для AI-агентов через команду в панели «Инструменты 1С».
+
 ### Для пользователей
 
 - **[README проекта](../README.md)**  
@@ -34,8 +37,9 @@
 
 ```txt
 docs/
-├── README.md              # Этот файл - навигация по документации
-├── vscode-api.md          # Паттерны использования VS Code API
-├── vrunner-patterns.md    # Паттерны работы с vrunner
-└── CI_CD_SETUP.md        # Настройка CI/CD
+├── README.md                 # Этот файл - навигация по документации
+├── vscode-api.md             # Паттерны использования VS Code API
+├── vrunner-patterns.md       # Паттерны работы с vrunner
+├── CI_CD_SETUP.md            # Настройка CI/CD
+└── design-ai-agent-skill.md  # Проектирование: навык для AI-агентов (Issue #56)
 ```

@@ -39,3 +39,5 @@ alwaysApply: false
 ## Добавление новых команд
 
 Новую команду: добавить запись в соответствующую группу в `src/treeStructure.ts` (TREE_GROUPS), зарегистрировать в `package.json` → `contributes.commands` и в `src/commands/commandRegistry.ts` через `registerCommands()`. Названия — функции из `src/commandNames.ts` (get*CommandName()); для узлов «Конфигурации запуска» (env.json, launch.json) допускаются фиксированные title/treeLabel. Команды для динамических узлов (задачи oscript, конфигурации запуска) регистрируются в extension.ts.
+
+**Файл навыков для AI-агентов:** при добавлении любой новой команды, которая отображается в дереве «Инструменты 1С» (TREE_GROUPS), обязательно добавь её в `resources/skills/1c-platform-tools/SKILL.md`: в соответствующую секцию (Информационные базы, Конфигурация, Расширения и т.д.) добавь строку в таблицу «Задача | Command ID» с кратким описанием задачи и идентификатором команды (`1c-platform-tools.<domain>.<action>`). Так агенты (Cursor, Claude, Copilot) смогут подсказывать пользователю вызывать новую команду расширения.
