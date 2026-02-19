@@ -214,4 +214,4 @@ Ivan Karlo (<i.karlo@outlook.com>)
 При желании, отблагодарить автора можно по ссылке:
 
 - [Boosty](https://boosty.to/1carlo/donate)
-- [Сбор в Т-банк](https://www.tbank.ru/cf/4kILVyrLKwq)
+- [Чаевые](https://pay.cloudtips.ru/p/d752cb43)
