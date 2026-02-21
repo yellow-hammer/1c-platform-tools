@@ -11,6 +11,7 @@ import { RunCommands } from './runCommands';
 import { TestCommands } from './testCommands';
 import { SetVersionCommands } from './setVersionCommands';
 import { WorkspaceTasksCommands } from './workspaceTasksCommands';
+import { ArtifactCommands } from './artifactCommands';
 import { VRunnerManager } from '../vrunnerManager';
 
 /**
@@ -27,6 +28,26 @@ interface Commands {
 	test: TestCommands;
 	setVersion: SetVersionCommands;
 	workspaceTasks: WorkspaceTasksCommands;
+	artifact: ArtifactCommands;
+}
+
+function getActiveEditorResourceUri(): vscode.Uri | undefined {
+	return (
+		vscode.window.activeTextEditor?.document.uri ??
+		(vscode.window.tabGroups.activeTabGroup?.activeTab?.input as { uri?: vscode.Uri })?.uri
+	);
+}
+
+function registerFromEditor(
+	id: string,
+	handler: (uri: vscode.Uri) => void | Promise<void>
+): vscode.Disposable {
+	return vscode.commands.registerCommand(id, async () => {
+		const uri = getActiveEditorResourceUri();
+		if (uri) {
+			await handler(uri);
+		}
+	});
 }
 
 /**
@@ -271,6 +292,79 @@ export function registerCommands(
 		})
 	];
 
+	const artifactCommands = [
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.open', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.open(element.resourceUri);
+			}
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.buildConfiguration', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.buildConfiguration(element.resourceUri);
+			}
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.decompileConfiguration', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.decompileConfiguration(element.resourceUri);
+			}
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.buildExtension', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.buildExtension(element.resourceUri);
+			}
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.decompileExtension', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.decompileExtension(element.resourceUri);
+			}
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.buildProcessor', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.buildProcessor(element.resourceUri);
+			}
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.decompileProcessor', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.decompileProcessor(element.resourceUri);
+			}
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.buildReport', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.buildReport(element.resourceUri);
+			}
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.decompileReport', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.decompileReport(element.resourceUri);
+			}
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.runVanessa', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.runVanessa(element.resourceUri);
+			}
+		}),
+		vscode.commands.registerCommand('1c-platform-tools.artifacts.delete', (element: vscode.TreeItem) => {
+			if (element.resourceUri) {
+				void commands.artifact.delete(element.resourceUri);
+			}
+		}),
+		registerFromEditor('1c-platform-tools.artifacts.runVanessa.fromEditor', (u) =>
+			commands.artifact.runVanessa(u)
+		),
+		registerFromEditor('1c-platform-tools.artifacts.decompileConfiguration.fromEditor', (u) =>
+			commands.artifact.decompileConfiguration(u)
+		),
+		registerFromEditor('1c-platform-tools.artifacts.decompileExtension.fromEditor', (u) =>
+			commands.artifact.decompileExtension(u)
+		),
+		registerFromEditor('1c-platform-tools.artifacts.decompileProcessor.fromEditor', (u) =>
+			commands.artifact.decompileProcessor(u)
+		),
+		registerFromEditor('1c-platform-tools.artifacts.decompileReport.fromEditor', (u) =>
+			commands.artifact.decompileReport(u)
+		),
+	];
+
 	// Команда редактирования env.json
 	const vrunnerManager = VRunnerManager.getInstance();
 	const envEditCommand = vscode.commands.registerCommand('1c-platform-tools.config.env.edit', async () => {
@@ -296,6 +390,7 @@ export function registerCommands(
 		...testCommands,
 		...setVersionCommands,
 		...buildDecompileCommands,
+		...artifactCommands,
 		envEditCommand
 	);
 

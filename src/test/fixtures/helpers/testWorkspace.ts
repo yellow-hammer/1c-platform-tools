@@ -9,23 +9,23 @@ export interface TestWorkspaceOptions {
 }
 
 /**
- * Получить путь к директории с шаблонами фикстур
- * Работает как в исходниках, так и в скомпилированном коде
+ * Получить путь к директории с шаблонами фикстур.
+ * Работает в исходниках и в скомпилированном коде (тесты бандлятся в out/test/).
  */
 function getFixturesPath(): string {
-	// __dirname в скомпилированном коде: out/test/fixtures/helpers
-	// __dirname в исходниках: src/test/fixtures/helpers (если запускается напрямую)
-	
-	// Если это скомпилированный код, нужно подняться к исходникам
-	// out/test/fixtures/helpers -> корень проекта -> src/test/fixtures/workspace-templates
-	if (__dirname.includes(path.join('out', 'test')) || __dirname.includes(String.raw`out\test`)) {
-		// Поднимаемся от out/test/fixtures/helpers к корню проекта (4 уровня вверх)
-		const projectRoot = path.resolve(__dirname, '../../../..');
-		return path.join(projectRoot, 'src', 'test', 'fixtures', 'workspace-templates');
+	const templatesRel = path.join('src', 'test', 'fixtures', 'workspace-templates');
+	if (__dirname.includes(path.join('out', 'test'))) {
+		let dir = __dirname;
+		const { existsSync } = require('node:fs');
+		while (dir !== path.dirname(dir)) {
+			const candidate = path.join(dir, templatesRel);
+			if (existsSync(candidate)) {
+				return candidate;
+			}
+			dir = path.dirname(dir);
+		}
 	}
-	
-	// Иначе используем относительный путь (для исходников)
-	return path.join(__dirname, '../workspace-templates');
+	return path.join(path.resolve(__dirname, '../../..'), templatesRel);
 }
 
 /**

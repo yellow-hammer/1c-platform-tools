@@ -48,6 +48,7 @@
     "onView:1c-platform-tools-projects-favorites",
     "onView:1c-platform-tools-projects-all",
     "onView:1c-platform-tools-projects-help",
+    "onView:1c-platform-tools-artifacts-tree",
     "onCommand:1c-platform-tools.projects.listOpen",
     "onCommand:1c-platform-tools.projects.openSettings"
   ],
@@ -107,6 +108,14 @@
           "name": "Список дел",
           "when": "1c-platform-tools.is1CProject == true"
         }
+      ],
+      "explorer": [
+        {
+          "id": "1c-platform-tools-artifacts-tree",
+          "name": "Артефакты 1С",
+          "contextualTitle": "Артефакты проекта",
+          "when": "1c-platform-tools.is1CProject == true"
+        }
       ]
     },
     "commands": [
@@ -115,6 +124,122 @@
         "title": "Обновить",
         "icon": "$(refresh)",
         "category": "1C: Дерево"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.refresh",
+        "title": "Обновить",
+        "icon": "$(refresh)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts._viewAsList",
+        "title": "Список",
+        "category": "1C: Артефакты",
+        "icon": "$(list-flat)",
+        "enablement": "!1c-platform-tools.artifacts.viewAsList"
+      },
+      {
+        "command": "1c-platform-tools.artifacts._viewByFolder",
+        "title": "По каталогам",
+        "category": "1C: Артефакты",
+        "icon": "$(list-tree)",
+        "enablement": "1c-platform-tools.artifacts.viewAsList"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.open",
+        "title": "Открыть",
+        "icon": "$(folder-opened)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.runVanessa",
+        "title": "Запустить",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.buildConfiguration",
+        "title": "Собрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.decompileConfiguration",
+        "title": "Разобрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.buildExtension",
+        "title": "Собрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.decompileExtension",
+        "title": "Разобрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.buildProcessor",
+        "title": "Собрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.decompileProcessor",
+        "title": "Разобрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.buildReport",
+        "title": "Собрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.decompileReport",
+        "title": "Разобрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.delete",
+        "title": "Удалить",
+        "icon": "$(trash)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.runVanessa.fromEditor",
+        "title": "Запустить Vanessa",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.decompileConfiguration.fromEditor",
+        "title": "Разобрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.decompileExtension.fromEditor",
+        "title": "Разобрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.decompileProcessor.fromEditor",
+        "title": "Разобрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
+      },
+      {
+        "command": "1c-platform-tools.artifacts.decompileReport.fromEditor",
+        "title": "Разобрать",
+        "icon": "$(play)",
+        "category": "1C: Артефакты"
       },
       {
         "command": "1c-platform-tools.settings",
@@ -138,6 +263,12 @@
         "title": "Настройки списка дел",
         "icon": "$(gear)",
         "category": "1C: Список дел"
+      },
+      {
+        "command": "1c-platform-tools.settings.openArtifacts",
+        "title": "Настройки артефактов",
+        "icon": "$(gear)",
+        "category": "1C: Артефакты"
       },
       {
         "command": "1c-platform-tools.settings.openGeneral",
@@ -747,6 +878,31 @@
           "group": "navigation@5"
         },
         {
+          "submenu": "1c-platform-tools.artifacts.viewAndSortMenu",
+          "when": "view == 1c-platform-tools-artifacts-tree",
+          "group": "1_artifacts"
+        },
+        {
+          "command": "1c-platform-tools.settings.openArtifacts",
+          "when": "view == 1c-platform-tools-artifacts-tree",
+          "group": "2_artifacts"
+        },
+        {
+          "command": "1c-platform-tools.artifacts._viewAsList",
+          "when": "view == 1c-platform-tools-artifacts-tree && !1c-platform-tools.artifacts.viewAsList",
+          "group": "navigation@12"
+        },
+        {
+          "command": "1c-platform-tools.artifacts._viewByFolder",
+          "when": "view == 1c-platform-tools-artifacts-tree && 1c-platform-tools.artifacts.viewAsList",
+          "group": "navigation@12"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.refresh",
+          "when": "view == 1c-platform-tools-artifacts-tree",
+          "group": "navigation@15"
+        },
+        {
           "command": "1c-platform-tools.todo.filterByScope",
           "when": "view == 1c-platform-tools-todo-list",
           "group": "navigation@1"
@@ -922,9 +1078,247 @@
           "command": "1c-platform-tools.projects.addToFavorites",
           "when": "view == 1c-platform-tools-projects-all && viewItem == ProjectNodeKind",
           "group": "workspace"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsFeature'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.runVanessa",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsFeature'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsConfigurationSource'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsConfigurationBinary'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.buildConfiguration",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsConfigurationSource'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileConfiguration",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsConfigurationBinary'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsExtensionSource'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsExtensionBinary'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.buildExtension",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsExtensionSource'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileExtension",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsExtensionBinary'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsProcessorSource'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsProcessorBinary'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.buildProcessor",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsProcessorSource'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileProcessor",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsProcessorBinary'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsReportSource'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsReportBinary'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.buildReport",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsReportSource'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileReport",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsReportBinary'",
+          "group": "inline"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsFeature'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.runVanessa",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsFeature'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsConfigurationSource'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsConfigurationBinary'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.buildConfiguration",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsConfigurationSource'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileConfiguration",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsConfigurationBinary'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsExtensionSource'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsExtensionBinary'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.buildExtension",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsExtensionSource'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileExtension",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsExtensionBinary'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsProcessorSource'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsProcessorBinary'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.buildProcessor",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsProcessorSource'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileProcessor",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsProcessorBinary'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsReportSource'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.open",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsReportBinary'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.buildReport",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsReportSource'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileReport",
+          "when": "view == 1c-platform-tools-artifacts-tree && viewItem == 'artifactsReportBinary'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.delete",
+          "when": "view == 1c-platform-tools-artifacts-tree",
+          "group": "9_cutcopypaste"
         }
       ],
-      "editor/context": [],
+      "editor/title": [
+        {
+          "command": "1c-platform-tools.artifacts.runVanessa.fromEditor",
+          "when": "1c-platform-tools.is1CProject == true && resourceExtname == '.feature'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileConfiguration.fromEditor",
+          "when": "1c-platform-tools.is1CProject == true && resourceExtname == '.cf'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileExtension.fromEditor",
+          "when": "1c-platform-tools.is1CProject == true && resourceExtname == '.cfe'",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileProcessor.fromEditor",
+          "when": "1c-platform-tools.is1CProject == true && (resourceExtname == '.epf' || resourcePath =~ /.*\\.epf$/i)",
+          "group": "navigation"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileReport.fromEditor",
+          "when": "1c-platform-tools.is1CProject == true && (resourceExtname == '.erf' || resourcePath =~ /.*\\.erf$/i)",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "1c-platform-tools.artifacts.runVanessa.fromEditor",
+          "when": "1c-platform-tools.is1CProject == true && resourceExtname == '.feature'",
+          "group": "1c_artifacts@1"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileConfiguration.fromEditor",
+          "when": "1c-platform-tools.is1CProject == true && resourceExtname == '.cf'",
+          "group": "1c_artifacts@1"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileExtension.fromEditor",
+          "when": "1c-platform-tools.is1CProject == true && resourceExtname == '.cfe'",
+          "group": "1c_artifacts@1"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileProcessor.fromEditor",
+          "when": "1c-platform-tools.is1CProject == true && (resourceExtname == '.epf' || resourcePath =~ /.*\\.epf$/i)",
+          "group": "1c_artifacts@1"
+        },
+        {
+          "command": "1c-platform-tools.artifacts.decompileReport.fromEditor",
+          "when": "1c-platform-tools.is1CProject == true && (resourceExtname == '.erf' || resourcePath =~ /.*\\.erf$/i)",
+          "group": "1c_artifacts@1"
+        }
+      ],
       "1c-platform-tools.projects.viewAndSortMenu": [
         {
           "command": "1c-platform-tools.projects._viewAsList",
@@ -942,11 +1336,26 @@
           "command": "1c-platform-tools.projects._sortByPath",
           "group": "2_sort@2"
         }
+      ],
+      "1c-platform-tools.artifacts.viewAndSortMenu": [
+        {
+          "command": "1c-platform-tools.artifacts._viewAsList",
+          "group": "1_view@1"
+        },
+        {
+          "command": "1c-platform-tools.artifacts._viewByFolder",
+          "group": "1_view@2"
+        }
       ]
     },
     "submenus": [
       {
         "id": "1c-platform-tools.projects.viewAndSortMenu",
+        "label": "Просмотр и сортировка",
+        "icon": "$(list-flat)"
+      },
+      {
+        "id": "1c-platform-tools.artifacts.viewAndSortMenu",
         "label": "Просмотр и сортировка",
         "icon": "$(list-flat)"
       }
@@ -962,7 +1371,7 @@
       {
         "id": "1c-platform-tools.getStarted",
         "title": "Начало работы с 1C: Platform tools",
-        "description": "Шесть шагов: проект, зависимости, панель команд, служебные файлы, панель проектов, список дел.",
+        "description": "Семь шагов: проект, зависимости, панель команд, артефакты, служебные файлы, панель проектов, список дел.",
         "icon": "resources/1c-icon.png",
         "steps": [
           {
@@ -990,27 +1399,35 @@
             }
           },
           {
-            "id": "step4-service-files",
+            "id": "step4-artifacts",
+            "title": "Панель артефактов",
+            "description": "Конфигурации, расширения, обработки, отчёты и feature-файлы. Открыть, собрать, разобрать, запустить Vanessa-Automation — из панели проводника или панели редактора.\n\n[Настройки артефактов](command:1c-platform-tools.settings.openArtifacts)",
+            "media": {
+              "markdown": "walkthrough/step4-artifacts.md"
+            }
+          },
+          {
+            "id": "step5-service-files",
             "title": "Служебные файлы",
             "description": "env.json, launch.json и др. — параметры ИБ, отладка, Git. Единый интерфейс настройки разрабатывается.\n\n[Открыть env.json](command:1c-platform-tools.config.env.edit)\n[Открыть launch.json](command:1c-platform-tools.launch.editConfigurations)",
             "media": {
-              "markdown": "walkthrough/step4-service-files.md"
+              "markdown": "walkthrough/step5-service-files.md"
             }
           },
           {
-            "id": "step5-projects",
+            "id": "step6-projects",
             "title": "Панель проектов",
             "description": "Укажите папки поиска — расширение найдёт все проекты 1С. Избранное и теги помогут быстро переключаться.\n\n[Открыть панель «Проекты 1С»](command:workbench.view.extension.1c-platform-tools-projects)\n[Настройка проектов](command:1c-platform-tools.projects.openSettings)\n[Открыть список проектов](command:1c-platform-tools.projects.listOpen)",
             "media": {
-              "markdown": "walkthrough/step5-projects.md"
+              "markdown": "walkthrough/step6-projects.md"
             }
           },
           {
-            "id": "step6-todo-list",
+            "id": "step7-todo-list",
             "title": "Список дел",
             "description": "Панель собирает TODO и FIXME по проекту. Фильтры и группировка помогают найти нужные пометки.\n\n[Открыть список дел](command:1c-platform-tools.todo.showPanel)\n[Настройки списка дел](command:1c-platform-tools.settings.openTodo)",
             "media": {
-              "markdown": "walkthrough/step6-todo-list.md"
+              "markdown": "walkthrough/step7-todo-list.md"
             }
           }
         ]
@@ -1144,9 +1561,27 @@
         }
       },
       {
+        "title": "Артефакты",
+        "id": "1c-platform-tools.artifacts",
+        "order": 2,
+        "properties": {
+          "1c-platform-tools.artifacts.exclude": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              ".git",
+              "oscript_modules"
+            ],
+            "description": "Сегменты пути для исключения при сканировании артефактов (feature, конфигурации, расширения, обработки, отчёты). Например: .git, oscript_modules."
+          }
+        }
+      },
+      {
         "title": "Проекты",
         "id": "1c-platform-tools.projects",
-        "order": 2,
+        "order": 3,
         "properties": {
           "1c-platform-tools.projects.baseFolders": {
             "type": "array",
