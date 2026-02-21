@@ -527,7 +527,7 @@ export class PlatformTreeDataProvider implements vscode.TreeDataProvider<Platfor
 						vscode.TreeItemCollapsibleState.None,
 						{
 							command: '1c-platform-tools.launch.run',
-							title: 'Запустить задачу',
+							title: 'Запустить задачу workspace',
 							arguments: [task.label],
 						}
 					)
