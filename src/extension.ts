@@ -16,6 +16,7 @@ import { RunCommands } from './commands/runCommands';
 import { TestCommands } from './commands/testCommands';
 import { SetVersionCommands } from './commands/setVersionCommands';
 import { WorkspaceTasksCommands } from './commands/workspaceTasksCommands';
+import { ArtifactCommands } from './commands/artifactCommands';
 import { OscriptTasksCommands } from './commands/oscriptTasksCommands';
 import { registerCommands } from './commands/commandRegistry';
 import { VRunnerManager } from './vrunnerManager';
@@ -29,6 +30,10 @@ import {
 	type PickableCommandGroup,
 } from './favorites';
 import { TodoPanelTreeDataProvider, type FilterScope } from './todoPanelView';
+import {
+	ProjectArtifactsTreeDataProvider,
+	type FeaturesViewMode,
+} from './projectArtifactsView';
 import { registerGetStarted, openGetStartedWalkthrough, showGetStartedOnFirstRun } from './getStartedView';
 import { OneCLocator } from './oneCLocator';
 import {
@@ -220,6 +225,17 @@ export async function activate(context: vscode.ExtensionContext) {
 	todoPanelProvider.setTreeView(todoTreeView);
 	context.subscriptions.push(todoTreeView);
 
+	// Панель «Артефакты проекта» — дерево артефактов (feature, конфигурации, расширения, обработки, отчёты)
+	const artifactsProvider = new ProjectArtifactsTreeDataProvider(context);
+	const artifactsTreeView = vscode.window.createTreeView(
+		'1c-platform-tools-artifacts-tree',
+		{
+			treeDataProvider: artifactsProvider,
+			showCollapseAll: true,
+		}
+	);
+	context.subscriptions.push(artifactsTreeView);
+
 	await vscode.commands.executeCommand('setContext', '1c-platform-tools.is1CProject', false);
 
 	const isProject = await is1CProject();
@@ -235,6 +251,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		infobase: new InfobaseCommands(),
 		configuration: new ConfigurationCommands(),
 		extensions: new ExtensionsCommands(),
+		artifact: new ArtifactCommands(),
 		externalFiles: new ExternalFilesCommands(),
 		support: new SupportCommands(),
 		dependencies: new DependenciesCommands(),
@@ -286,6 +303,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		isProjectRef.current = true;
 		void vscode.commands.executeCommand('setContext', '1c-platform-tools.is1CProject', true);
 		treeDataProvider.refresh();
+		void artifactsProvider.refresh();
 	});
 
 	// Если проект только что создан через «Создать проект 1С» с опцией установки зависимостей — запускаем установку после открытия папки
@@ -364,7 +382,52 @@ export async function activate(context: vscode.ExtensionContext) {
 				providers.updateAutodetectTitle();
 			});
 		}
+		if (e.affectsConfiguration('1c-platform-tools.artifacts.exclude')) {
+			void artifactsProvider.refresh();
+		}
 	});
+
+	// Обновление артефактов при создании, удалении, переносе файлов
+	const artifactsRefreshDebounce = { timer: undefined as ReturnType<typeof setTimeout> | undefined };
+	const scheduleArtifactsRefresh = (): void => {
+		if (!isProjectRef.current) {
+			return;
+		}
+		if (artifactsRefreshDebounce.timer) {
+			clearTimeout(artifactsRefreshDebounce.timer);
+		}
+		artifactsRefreshDebounce.timer = setTimeout(() => {
+			artifactsRefreshDebounce.timer = undefined;
+			void artifactsProvider.refresh();
+		}, 300);
+	};
+	const artifactPatterns = [
+		'**/*.feature',
+		'**/*.cf',
+		'**/*.cfe',
+		'**/*.epf',
+		'**/*.erf',
+		'**/Configuration.xml',
+		'**/*.xml',
+	];
+	const artifactWatchers = artifactPatterns.flatMap((pattern) => {
+		const w = vscode.workspace.createFileSystemWatcher(pattern);
+		return [
+			w.onDidCreate(scheduleArtifactsRefresh),
+			w.onDidDelete(scheduleArtifactsRefresh),
+			w,
+		];
+	});
+	context.subscriptions.push(
+		...artifactWatchers,
+		{
+			dispose: () => {
+				if (artifactsRefreshDebounce.timer) {
+					clearTimeout(artifactsRefreshDebounce.timer);
+				}
+			},
+		}
+	);
 
 	// Открыть «Начало работы» в редакторе при первом открытии только что созданного проекта
 	const showGetStartedForPath = context.globalState.get<string>('1c-platform-tools.showGetStartedForPath');
@@ -383,12 +446,50 @@ export async function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Дерево обновлено');
 	});
 
+	const artifactsRefreshCommand = vscode.commands.registerCommand(
+		'1c-platform-tools.artifacts.refresh',
+		async () => {
+			if (!isProjectRef.current) {
+				showNot1CProjectMessage();
+				return;
+			}
+			await artifactsProvider.refresh();
+			logger.debug('Дерево артефактов обновлено');
+			vscode.window.showInformationMessage('Дерево артефактов обновлено');
+		}
+	);
+
+	const updateArtifactsViewContext = (): void => {
+		const mode = artifactsProvider.getFeaturesViewMode();
+		void vscode.commands.executeCommand(
+			'setContext',
+			'1c-platform-tools.artifacts.viewAsList',
+			mode === 'list'
+		);
+	};
+	updateArtifactsViewContext();
+
+	const artifactsViewAsListCommand = vscode.commands.registerCommand(
+		'1c-platform-tools.artifacts._viewAsList',
+		async () => {
+			await artifactsProvider.setFeaturesViewMode('list' as FeaturesViewMode);
+		}
+	);
+
+	const artifactsViewByFolderCommand = vscode.commands.registerCommand(
+		'1c-platform-tools.artifacts._viewByFolder',
+		async () => {
+			await artifactsProvider.setFeaturesViewMode('folder' as FeaturesViewMode);
+		}
+	);
+
 	const SETTINGS_EXT = '@ext:yellow-hammer.1c-platform-tools';
 	const settingsCommand = vscode.commands.registerCommand('1c-platform-tools.settings', async () => {
 		const choice = await vscode.window.showQuickPick(
 			[
 				{ label: '$(tools) Инструменты', detail: 'vrunner, пути, docker, allure', filter: '1c-platform-tools' },
 				{ label: '$(folder-opened) Проекты', detail: 'baseFolders, исключения, избранное', filter: '1c-platform-tools.projects' },
+				{ label: '$(package) Артефакты', detail: 'исключения при сканировании', filter: '1c-platform-tools.artifacts' },
 				{ label: '$(checklist) Список дел', detail: 'паттерны, исключения, теги', filter: '1c-platform-tools.todo' },
 				{ label: '$(settings-gear) Общее', detail: 'все настройки расширения', filter: '' },
 			],
@@ -410,6 +511,9 @@ export async function activate(context: vscode.ExtensionContext) {
 	);
 	vscode.commands.registerCommand('1c-platform-tools.settings.openTodo', () =>
 		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.todo`)
+	);
+	vscode.commands.registerCommand('1c-platform-tools.settings.openArtifacts', () =>
+		vscode.commands.executeCommand('workbench.action.openSettings', `${SETTINGS_EXT} 1c-platform-tools.artifacts`)
 	);
 	vscode.commands.registerCommand('1c-platform-tools.settings.openGeneral', () =>
 		vscode.commands.executeCommand('workbench.action.openSettings', SETTINGS_EXT)
@@ -608,7 +712,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	// Обновление списка TODO при сохранении релевантного файла (дебаунс 1.5 с)
+	// Обновление списка дел при сохранении релевантного файла (дебаунс 1.5 с)
 	const todoSaveDebounce = { timer: undefined as ReturnType<typeof setTimeout> | undefined };
 	const onTodoRelevantSave = vscode.workspace.onDidSaveTextDocument((doc) => {
 		if (!isProjectRef.current) {
@@ -730,6 +834,9 @@ export async function activate(context: vscode.ExtensionContext) {
 		openWriteReviewCommand,
 		openSponsorCommand,
 		treeView,
+		artifactsRefreshCommand,
+		artifactsViewAsListCommand,
+		artifactsViewByFolderCommand,
 		...projectsCommandDisposables,
 		onProjectsConfigChange,
 		refreshCommand,
