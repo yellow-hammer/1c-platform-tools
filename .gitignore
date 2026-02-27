@@ -3,6 +3,9 @@ build/
 out/
 dist/
 node_modules/
+_onec-debug-adapter/
+bin/onec-debug-adapter/
+bin/onec-debug-adapter-*.zip
 
 # VS Code расширение
 *.vsix
