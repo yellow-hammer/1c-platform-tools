@@ -6,9 +6,19 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { minimatch } from 'minimatch';
 
 import { expandHomePath, expandWithGlobPatterns, updateWithPathSeparator } from './projectsPathUtils';
+
+/**
+ * Простое сопоставление с glob-подобным шаблоном (matchBase: только по последнему сегменту пути).
+ * Достаточно для проектных ignorePatterns (*node_modules*, .git и т.п.).
+ */
+function matchIgnorePattern(pathToMatch: string, pattern: string): boolean {
+	const base = path.basename(pathToMatch);
+	const escaped = pattern.replaceAll(/[\\^$.+()|[\]{}]/g, String.raw`\$&`);
+	const re = new RegExp('^' + escaped.replaceAll('*', '.*').replaceAll('?', '.') + '$', 'i');
+	return re.test(base) || re.test(pathToMatch);
+}
 
 const PACKAGEDEF = 'packagedef';
 const CACHE_FILENAME = 'projects_cache_1c.json';
@@ -47,7 +57,7 @@ export class OneCLocator {
 	}
 
 	private isFolderIgnored(folderName: string): boolean {
-		const matches = this.ignoredFolders.filter((f) => minimatch(folderName, f, { matchBase: true }));
+		const matches = this.ignoredFolders.filter((f) => matchIgnorePattern(folderName, f));
 		return matches.length > 0;
 	}
 

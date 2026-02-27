@@ -31,6 +31,10 @@ vsc-extension-quickstart.md
 **/esbuild.config.mjs
 build/**
 **/build/**
+scripts/**
+
+# Исходники onec-debug-adapter (клонируются при сборке, в пакет попадает только bin/onec-debug-adapter/)
+_onec-debug-adapter/**
 
 # Временные файлы
 *.log
