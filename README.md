@@ -72,6 +72,15 @@
 - **Статусная строка** — отображает текущий проект; клик открывает QuickPick выбора
 - **QuickPick** — команда «Открыть список проектов 1С» (`Ctrl+Alt+P` / `Cmd+Alt+P`) для быстрого выбора из палитры
 
+### Отладка 1С (DAP)
+
+Встроена поддержка отладки 1С:Предприятие через [onec-debug-adapter](https://github.com/yellow-hammer/onec-debug-adapter) (DAP для HTTP-сервера отладки 1С).
+
+- **Требования:** установленный [.NET 8](https://dotnet.microsoft.com/download/dotnet/8.0).
+- Адрес информационной базы для отладки берётся из **env.json** в корне проекта: укажите в `default["--ibconnection"]` строку подключения в формате **/F** (файловая ИБ) или **/S** (серверная ИБ), например `/F./build/ib` или `/Sсервер\база`.
+- В панели **Run and Debug** выберите конфигурацию типа **1Cpt:Enterprise** (launch). При создании конфигурации поля `rootProject` и `extensions` автоматически заполняются на основе настроек `1c-platform-tools.paths.cf` и `1c-platform-tools.paths.cfe`; при необходимости отредактируйте `platformPath`, `autoAttachTypes` и другие параметры.
+- В панели отладки доступен список целей **Debug targets** с возможностью ручного подключения (Connect).
+
 ## Требования
 
 - Visual Studio Code версии 1.103.0 или выше

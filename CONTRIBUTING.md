@@ -44,6 +44,7 @@
 - **Node.js** версии 20.x или выше (соответствует `package.json` engines)
 - **npm** или **yarn**
 - **VS Code** версии 1.103 или выше (для тестирования)
+- Для работы и отладки DAP: установленный [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - **TypeScript** (устанавливается автоматически)
 - **Git** для работы с репозиторием
 
@@ -72,6 +73,31 @@
    - Откройте проект в VS Code
    - Нажмите `F5` для запуска Extension Development Host
    - В новом окне VS Code протестируйте ваши изменения
+
+### Работа с адаптером отладки (onec-debug-adapter)
+
+Расширение использует внешний DAP‑процесс из репозитория
+[`yellow-hammer/onec-debug-adapter`](https://github.com/yellow-hammer/onec-debug-adapter).
+
+- Для **обычной разработки расширения** ничего дополнительно делать не нужно:
+  при сборке VSIX через `npm run build:onec-adapter` будет скачан готовый релиз адаптера
+  с GitHub Releases или выполнена локальная сборка из соседнего репозитория `onec-debug-adapter`
+  (если релиз недоступен).
+- Для **разработки самого адаптера** и тестирования его вместе с расширением:
+  1. Клонируйте `onec-debug-adapter` рядом с этим репозиторием (как `../onec-debug-adapter`).
+  2. Внесите изменения в код адаптера.
+  3. Соберите его вручную:
+
+     ```bash
+     cd ../onec-debug-adapter
+     dotnet publish onec-debug-adapter.csproj -c Release -o ../vscode-1c-platform-tools/bin/onec-debug-adapter
+     ```
+
+  4. Вернитесь в `vscode-1c-platform-tools`, соберите и запустите расширение (`npm run compile`, затем `F5`).
+
+Мейнтейнеры публикуют релизы адаптера, помечая версии тегами `vX.Y.Z` в репозитории `onec-debug-adapter`.
+Скрипт `scripts/build-onec-adapter.mjs` загружает соответствующий архив релиза и раскладывает его
+в `bin/onec-debug-adapter/` при сборке расширения.
 
 ### Структура проекта
 
