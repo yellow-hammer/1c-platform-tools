@@ -16,6 +16,7 @@ alwaysApply: true
 - **Панель «Список дел»**: нижняя панель (view container), провайдер `TodoPanelTreeDataProvider` в `src/todoPanelView.ts`, сканирование — `src/todoScanner.ts`. Фильтры по тегу и области, группировка по файлу; не использует vrunner
 - **Базовый класс команд**: `BaseCommand` в `src/commands/baseCommand.ts`
 - **vrunner**: синглтон `VRunnerManager` в `src/vrunnerManager.ts`
+- **DAP и отладка 1С**: интеграция с внешним адаптером `onec-debug-adapter` (DAP для HTTP‑сервера отладки 1С), см. правила в `.cursor/rules/debug-adapter-and-dap.mdc`
 - **Структура проекта 1С**: `src/projectStructure.ts` (PROJECT_STRUCTURE для команды «Инициализировать структуру проекта», шаблон vanessa-bootstrap)
 - **Контекст после создания проекта**: `src/projectContext.ts` (setOnProjectCreated, notifyProjectCreated — полная активация после инициализации packagedef)
 - **Остальные модули**: `favorites.ts`, `commandNames.ts`, `constants.ts`, `logger.ts`, `todoPanelView.ts`, `todoScanner.ts`, `src/utils/` (commandUtils, configVersionUtils, dateUtils)

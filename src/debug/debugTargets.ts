@@ -36,7 +36,9 @@ class DebugTargetsProvider implements vscode.TreeDataProvider<DebugTargetItem> {
 	}
 
 	getChildren(element?: DebugTargetItem): vscode.ProviderResult<DebugTargetItem[]> {
-		if (element === undefined) return this.items;
+		if (element === undefined) {
+		 return this.items;
+		}
 		return [];
 	}
 }

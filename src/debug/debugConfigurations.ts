@@ -96,7 +96,9 @@ export class OnecDebugConfigurationProvoider implements vscode.DebugConfiguratio
 		config: vscode.DebugConfiguration,
 		_token?: vscode.CancellationToken
 	): Promise<vscode.DebugConfiguration | undefined> {
-		if (config.type !== '1c-platform-tools') return config;
+		if (config.type !== '1c-platform-tools') {
+			return config;
+		}
 
 		const workspaceRoot = folder?.uri.fsPath;
 		if (!workspaceRoot) {
@@ -137,7 +139,9 @@ export class OnecDebugConfigurationProvoider implements vscode.DebugConfiguratio
 export function getOnecConfigurations(): vscode.DebugConfiguration[] {
 	const config = vscode.workspace.getConfiguration('launch');
 	const configurations = config.get<vscode.DebugConfiguration[]>('configurations');
-	if (configurations === undefined) return [];
+	if (configurations === undefined) {
+		return [];
+	}
 	return configurations.filter((c) => c.type === '1c-platform-tools');
 }
 
